@@ -1,0 +1,503 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: view/linequality/overview.js:136
+#, javascript-format
+msgid "%d s"
+msgstr ""
+
+#: view/linequality/overview.js:144
+#, javascript-format
+msgid "%d d"
+msgstr ""
+
+#: view/linequality/overview.js:144
+#, javascript-format
+msgid "%d h"
+msgstr ""
+
+#: view/linequality/overview.js:147
+#, javascript-format
+msgid "%d min"
+msgstr ""
+
+#: view/linequality/overview.js:495
+msgid "Line quality"
+msgstr ""
+
+#: view/linequality/overview.js:498
+msgid "History"
+msgstr ""
+
+#: view/linequality/overview.js:502
+msgid "Outages and disconnections"
+msgstr ""
+
+#: view/linequality/overview.js:503
+msgid "Speed tests"
+msgstr ""
+
+#: view/linequality/overview.js:504
+msgid "Daily summary, last 30 days"
+msgstr ""
+
+#: view/linequality/overview.js:552
+msgid "Range"
+msgstr ""
+
+#: view/linequality/overview.js:579
+msgid "No data from the collector. Is the linequality service running?"
+msgstr ""
+
+#: view/linequality/overview.js:593
+msgid "Offline"
+msgstr ""
+
+#: view/linequality/overview.js:597
+msgid "Degraded"
+msgstr ""
+
+#: view/linequality/overview.js:601
+msgid "Online"
+msgstr ""
+
+#: view/linequality/overview.js:609
+msgid "Line state"
+msgstr ""
+
+#: view/linequality/overview.js:612
+msgid "Interface"
+msgstr ""
+
+#: view/linequality/overview.js:613
+msgid "Connection uptime"
+msgstr ""
+
+#: view/linequality/overview.js:614
+msgid "Public IP"
+msgstr ""
+
+#: view/linequality/overview.js:615
+msgid "Gateway"
+msgstr ""
+
+#: view/linequality/overview.js:616
+msgid "Link"
+msgstr ""
+
+#: view/linequality/overview.js:616
+msgid "No carrier"
+msgstr ""
+
+#: view/linequality/overview.js:620
+msgid "Availability"
+msgstr ""
+
+#: view/linequality/overview.js:621
+msgid "Last 24 hours"
+msgstr ""
+
+#: view/linequality/overview.js:621
+msgid "Last 7 days"
+msgstr ""
+
+#: view/linequality/overview.js:621
+msgid "Last 30 days"
+msgstr ""
+
+#: view/linequality/overview.js:628
+#, javascript-format
+msgid "%d disconnects"
+msgstr ""
+
+#: view/linequality/overview.js:636
+msgid "Traffic"
+msgstr ""
+
+#: view/linequality/overview.js:637
+msgid "Today"
+msgstr ""
+
+#: view/linequality/overview.js:638
+msgid "This month"
+msgstr ""
+
+#: view/linequality/overview.js:644
+msgid "Speed"
+msgstr ""
+
+#: view/linequality/overview.js:645
+msgid "Live"
+msgstr ""
+
+#: view/linequality/overview.js:646
+msgid "Average, 24 h"
+msgstr ""
+
+#: view/linequality/overview.js:647
+msgid "Peak, 24 h"
+msgstr ""
+
+#: view/linequality/overview.js:652
+msgid "Latency, last 5 minutes"
+msgstr ""
+
+#: view/linequality/overview.js:654
+msgid "Target"
+msgstr ""
+
+#: view/linequality/overview.js:654
+msgid "RTT"
+msgstr ""
+
+#: view/linequality/overview.js:654
+msgid "Loss"
+msgstr ""
+
+#: view/linequality/overview.js:654
+msgid "Jitter"
+msgstr ""
+
+#: view/linequality/overview.js:665
+msgid "No data yet"
+msgstr ""
+
+#: view/linequality/overview.js:675
+msgid "Last speed test"
+msgstr ""
+
+#: view/linequality/overview.js:683
+msgid "Ping"
+msgstr ""
+
+#: view/linequality/overview.js:685
+msgid "Bufferbloat"
+msgstr ""
+
+#: view/linequality/overview.js:687
+msgid "Server"
+msgstr ""
+
+#: view/linequality/overview.js:688
+msgid "When"
+msgstr ""
+
+#: view/linequality/overview.js:693
+msgid "The last speed test failed"
+msgstr ""
+
+#: view/linequality/overview.js:698
+msgid "No speed test yet"
+msgstr ""
+
+#: view/linequality/overview.js:702
+msgid "Speed tests need the librespeed-cli package. Install it (opkg install librespeed-cli, or apk add librespeed-cli) to enable them."
+msgstr ""
+
+#: view/linequality/overview.js:714
+msgid "Speed test running…"
+msgstr ""
+
+#: view/linequality/overview.js:714
+msgid "Run speed test"
+msgstr ""
+
+#: view/linequality/overview.js:720
+#, javascript-format
+msgid "Running for %s"
+msgstr ""
+
+#: view/linequality/overview.js:737
+msgid "A speed test is already running."
+msgstr ""
+
+#: view/linequality/overview.js:738
+msgid "Speed tests are not available: librespeed-cli is not installed."
+msgstr ""
+
+#: view/linequality/overview.js:739
+#, javascript-format
+msgid "Unable to start the speed test: %s"
+msgstr ""
+
+#: view/linequality/overview.js:760
+msgid "No data collected yet for this range."
+msgstr ""
+
+#: view/linequality/overview.js:789
+msgid "Packet loss"
+msgstr ""
+
+#: view/linequality/overview.js:791
+msgid "Outage"
+msgstr ""
+
+#: view/linequality/overview.js:794
+msgid "Latency"
+msgstr ""
+
+#: view/linequality/overview.js:828
+msgid "Download"
+msgstr ""
+
+#: view/linequality/overview.js:828
+msgid "Upload"
+msgstr ""
+
+#: view/linequality/overview.js:829
+msgid "Download peak"
+msgstr ""
+
+#: view/linequality/overview.js:829
+msgid "Upload peak"
+msgstr ""
+
+#: view/linequality/overview.js:833
+msgid "Speed test"
+msgstr ""
+
+#: view/linequality/overview.js:836
+msgid "Throughput"
+msgstr ""
+
+#: view/linequality/overview.js:851
+msgid "Volume"
+msgstr ""
+
+#: view/linequality/overview.js:855
+msgid "yes"
+msgstr ""
+
+#: view/linequality/overview.js:868
+msgid "Internet outage"
+msgstr ""
+
+#: view/linequality/overview.js:869
+msgid "WAN disconnected"
+msgstr ""
+
+#: view/linequality/overview.js:870
+msgid "Link down"
+msgstr ""
+
+#: view/linequality/overview.js:871
+msgid "Monitoring gap"
+msgstr ""
+
+#: view/linequality/overview.js:882
+msgid "gateway reachable"
+msgstr ""
+
+#: view/linequality/overview.js:884
+msgid "gateway unreachable"
+msgstr ""
+
+#: view/linequality/overview.js:887
+msgid "WAN up"
+msgstr ""
+
+#: view/linequality/overview.js:889
+msgid "WAN down"
+msgstr ""
+
+#: view/linequality/overview.js:893
+msgid "IP changed"
+msgstr ""
+
+#: view/linequality/overview.js:896
+msgid "clean shutdown"
+msgstr ""
+
+#: view/linequality/overview.js:896
+msgid "unclean shutdown"
+msgstr ""
+
+#: view/linequality/overview.js:905
+msgid "No outages recorded."
+msgstr ""
+
+#: view/linequality/overview.js:911
+msgid "Type"
+msgstr ""
+
+#: view/linequality/overview.js:911
+msgid "Start"
+msgstr ""
+
+#: view/linequality/overview.js:911
+msgid "End"
+msgstr ""
+
+#: view/linequality/overview.js:912
+msgid "Duration"
+msgstr ""
+
+#: view/linequality/overview.js:912
+msgid "Details"
+msgstr ""
+
+#: view/linequality/overview.js:921
+msgid "ongoing"
+msgstr ""
+
+#: view/linequality/overview.js:938
+msgid "Date"
+msgstr ""
+
+#: view/linequality/overview.js:938
+msgid "Trigger"
+msgstr ""
+
+#: view/linequality/overview.js:949
+msgid "Scheduled"
+msgstr ""
+
+#: view/linequality/overview.js:949
+msgid "Manual"
+msgstr ""
+
+#: view/linequality/overview.js:950
+msgid "Failed"
+msgstr ""
+
+#: view/linequality/overview.js:979
+msgid "Downloaded"
+msgstr ""
+
+#: view/linequality/overview.js:979
+msgid "Uploaded"
+msgstr ""
+
+#: view/linequality/overview.js:980
+msgid "Average speed"
+msgstr ""
+
+#: view/linequality/overview.js:980
+msgid "Peak speed"
+msgstr ""
+
+#: view/linequality/overview.js:981
+msgid "Uptime"
+msgstr ""
+
+#: view/linequality/overview.js:982
+msgid "Average RTT"
+msgstr ""
+
+#: view/linequality/settings.js:11
+msgid "Configure the WAN line quality monitor: which interface and hosts to probe, where to store the history and when to run speed tests."
+msgstr ""
+
+#: view/linequality/settings.js:17
+msgid "General"
+msgstr ""
+
+#: view/linequality/settings.js:18
+msgid "Probes"
+msgstr ""
+
+#: view/linequality/settings.js:19
+msgid "Storage"
+msgstr ""
+
+#: view/linequality/settings.js:22
+msgid "Enable"
+msgstr ""
+
+#: view/linequality/settings.js:23
+msgid "Run the line quality collector."
+msgstr ""
+
+#: view/linequality/settings.js:27
+msgid "WAN interface"
+msgstr ""
+
+#: view/linequality/settings.js:28
+msgid "The logical interface whose connection is monitored (traffic counters, connection state and public address)."
+msgstr ""
+
+#: view/linequality/settings.js:33
+msgid "Probe targets"
+msgstr ""
+
+#: view/linequality/settings.js:34
+msgid "IP addresses pinged once per second to measure latency, jitter and packet loss. The special value \"gateway\" is resolved automatically to the provider-side address of the connection. Internet outages are detected when all targets other than the gateway stop answering."
+msgstr ""
+
+#: view/linequality/settings.js:38
+msgid "Outage threshold"
+msgstr ""
+
+#: view/linequality/settings.js:39
+msgid "Number of consecutive seconds with every probe lost before an internet outage is recorded."
+msgstr ""
+
+#: view/linequality/settings.js:44
+msgid "Data directory"
+msgstr ""
+
+#: view/linequality/settings.js:45
+msgid "Where the history is stored. The default is persistent flash storage; samples are written only once per hour to limit flash wear."
+msgstr ""
+
+#: view/linequality/settings.js:49
+msgid "Hourly data retention"
+msgstr ""
+
+#: view/linequality/settings.js:50
+msgid "Days of hourly samples to keep."
+msgstr ""
+
+#: view/linequality/settings.js:55
+msgid "Daily data retention"
+msgstr ""
+
+#: view/linequality/settings.js:56
+msgid "Days of daily summaries to keep."
+msgstr ""
+
+#: view/linequality/settings.js:61
+msgid "Schedule"
+msgstr ""
+
+#: view/linequality/settings.js:62
+msgid "Local times of day for automatic speed tests, separated by spaces, for example \"03:30 15:30\". Leave empty to disable scheduled tests. Requires the librespeed-cli package."
+msgstr ""
+
+#: view/linequality/settings.js:72
+msgid "Expected times in HH:MM format, separated by spaces"
+msgstr ""
+
+#: view/linequality/settings.js:77
+msgid "Test duration"
+msgstr ""
+
+#: view/linequality/settings.js:78
+msgid "Seconds spent on each of the download and upload phases. Note that on a multi-gigabit line each test can transfer several GB of data."
+msgstr ""
+
+#: view/linequality/settings.js:83
+msgid "Parallel connections"
+msgstr ""
+
+#: view/linequality/settings.js:84
+msgid "Number of simultaneous connections used by the test."
+msgstr ""
+
+#: view/linequality/settings.js:89
+msgid "Server ID"
+msgstr ""
+
+#: view/linequality/settings.js:90
+msgid "Optional LibreSpeed server ID. Leave empty to pick the closest server automatically."
+msgstr ""
+
+#: root/usr/share/luci/menu.d/luci-app-linequality.json:1
+msgid "Overview"
+msgstr ""
+
+#: root/usr/share/luci/menu.d/luci-app-linequality.json:1
+msgid "Settings"
+msgstr ""
+

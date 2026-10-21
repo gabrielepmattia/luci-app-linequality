@@ -1,0 +1,507 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: view/linequality/overview.js:136
+#, javascript-format
+msgid "%d s"
+msgstr "%d s"
+
+#: view/linequality/overview.js:144
+#, javascript-format
+msgid "%d d"
+msgstr "%d g"
+
+#: view/linequality/overview.js:144
+#, javascript-format
+msgid "%d h"
+msgstr "%d h"
+
+#: view/linequality/overview.js:147
+#, javascript-format
+msgid "%d min"
+msgstr "%d min"
+
+#: view/linequality/overview.js:495
+msgid "Line quality"
+msgstr "Qualità linea"
+
+#: view/linequality/overview.js:498
+msgid "History"
+msgstr "Storico"
+
+#: view/linequality/overview.js:502
+msgid "Outages and disconnections"
+msgstr "Interruzioni e disconnessioni"
+
+#: view/linequality/overview.js:503
+msgid "Speed tests"
+msgstr "Test di velocità"
+
+#: view/linequality/overview.js:504
+msgid "Daily summary, last 30 days"
+msgstr "Riepilogo giornaliero, ultimi 30 giorni"
+
+#: view/linequality/overview.js:552
+msgid "Range"
+msgstr "Intervallo"
+
+#: view/linequality/overview.js:579
+msgid "No data from the collector. Is the linequality service running?"
+msgstr "Nessun dato dal collettore. Il servizio linequality è in esecuzione?"
+
+#: view/linequality/overview.js:593
+msgid "Offline"
+msgstr "Offline"
+
+#: view/linequality/overview.js:597
+msgid "Degraded"
+msgstr "Degradata"
+
+#: view/linequality/overview.js:601
+msgid "Online"
+msgstr "Online"
+
+#: view/linequality/overview.js:609
+msgid "Line state"
+msgstr "Stato della linea"
+
+#: view/linequality/overview.js:612
+msgid "Interface"
+msgstr "Interfaccia"
+
+#: view/linequality/overview.js:613
+msgid "Connection uptime"
+msgstr "Durata connessione"
+
+#: view/linequality/overview.js:614
+msgid "Public IP"
+msgstr "IP pubblico"
+
+#: view/linequality/overview.js:615
+msgid "Gateway"
+msgstr "Gateway"
+
+#: view/linequality/overview.js:616
+msgid "Link"
+msgstr "Collegamento"
+
+#: view/linequality/overview.js:616
+msgid "No carrier"
+msgstr "Nessuna portante"
+
+#: view/linequality/overview.js:620
+msgid "Availability"
+msgstr "Disponibilità"
+
+#: view/linequality/overview.js:621
+msgid "Last 24 hours"
+msgstr "Ultime 24 ore"
+
+#: view/linequality/overview.js:621
+msgid "Last 7 days"
+msgstr "Ultimi 7 giorni"
+
+#: view/linequality/overview.js:621
+msgid "Last 30 days"
+msgstr "Ultimi 30 giorni"
+
+#: view/linequality/overview.js:628
+#, javascript-format
+msgid "%d disconnects"
+msgstr "%d disconnessioni"
+
+#: view/linequality/overview.js:636
+msgid "Traffic"
+msgstr "Traffico"
+
+#: view/linequality/overview.js:637
+msgid "Today"
+msgstr "Oggi"
+
+#: view/linequality/overview.js:638
+msgid "This month"
+msgstr "Questo mese"
+
+#: view/linequality/overview.js:644
+msgid "Speed"
+msgstr "Velocità"
+
+#: view/linequality/overview.js:645
+msgid "Live"
+msgstr "Istantanea"
+
+#: view/linequality/overview.js:646
+msgid "Average, 24 h"
+msgstr "Media, 24 h"
+
+#: view/linequality/overview.js:647
+msgid "Peak, 24 h"
+msgstr "Picco, 24 h"
+
+#: view/linequality/overview.js:652
+msgid "Latency, last 5 minutes"
+msgstr "Latenza, ultimi 5 minuti"
+
+#: view/linequality/overview.js:654
+msgid "Target"
+msgstr "Destinazione"
+
+#: view/linequality/overview.js:654
+msgid "RTT"
+msgstr "RTT"
+
+#: view/linequality/overview.js:654
+msgid "Loss"
+msgstr "Perdita"
+
+#: view/linequality/overview.js:654
+msgid "Jitter"
+msgstr "Jitter"
+
+#: view/linequality/overview.js:665
+msgid "No data yet"
+msgstr "Ancora nessun dato"
+
+#: view/linequality/overview.js:675
+msgid "Last speed test"
+msgstr "Ultimo test di velocità"
+
+#: view/linequality/overview.js:683
+msgid "Ping"
+msgstr "Ping"
+
+#: view/linequality/overview.js:685
+msgid "Bufferbloat"
+msgstr "Bufferbloat"
+
+#: view/linequality/overview.js:687
+msgid "Server"
+msgstr "Server"
+
+#: view/linequality/overview.js:688
+msgid "When"
+msgstr "Quando"
+
+#: view/linequality/overview.js:693
+msgid "The last speed test failed"
+msgstr "L'ultimo test di velocità è fallito"
+
+#: view/linequality/overview.js:698
+msgid "No speed test yet"
+msgstr "Nessun test di velocità eseguito"
+
+#: view/linequality/overview.js:702
+msgid "Speed tests need the librespeed-cli package. Install it (opkg install librespeed-cli, or apk add librespeed-cli) to enable them."
+msgstr "Per i test di velocità serve il pacchetto librespeed-cli. Installalo (opkg install librespeed-cli oppure apk add librespeed-cli) per abilitarli."
+
+#: view/linequality/overview.js:714
+msgid "Speed test running…"
+msgstr "Test di velocità in corso…"
+
+#: view/linequality/overview.js:714
+msgid "Run speed test"
+msgstr "Avvia test di velocità"
+
+#: view/linequality/overview.js:720
+#, javascript-format
+msgid "Running for %s"
+msgstr "In corso da %s"
+
+#: view/linequality/overview.js:737
+msgid "A speed test is already running."
+msgstr "Un test di velocità è già in corso."
+
+#: view/linequality/overview.js:738
+msgid "Speed tests are not available: librespeed-cli is not installed."
+msgstr "I test di velocità non sono disponibili: librespeed-cli non è installato."
+
+#: view/linequality/overview.js:739
+#, javascript-format
+msgid "Unable to start the speed test: %s"
+msgstr "Impossibile avviare il test di velocità: %s"
+
+#: view/linequality/overview.js:760
+msgid "No data collected yet for this range."
+msgstr "Nessun dato raccolto per questo intervallo."
+
+#: view/linequality/overview.js:789
+msgid "Packet loss"
+msgstr "Perdita di pacchetti"
+
+#: view/linequality/overview.js:791
+msgid "Outage"
+msgstr "Interruzione"
+
+#: view/linequality/overview.js:794
+msgid "Latency"
+msgstr "Latenza"
+
+#: view/linequality/overview.js:828
+msgid "Download"
+msgstr "Download"
+
+#: view/linequality/overview.js:828
+msgid "Upload"
+msgstr "Upload"
+
+#: view/linequality/overview.js:829
+msgid "Download peak"
+msgstr "Picco download"
+
+#: view/linequality/overview.js:829
+msgid "Upload peak"
+msgstr "Picco upload"
+
+#: view/linequality/overview.js:833
+msgid "Speed test"
+msgstr "Test di velocità"
+
+#: view/linequality/overview.js:836
+msgid "Throughput"
+msgstr "Velocità di trasferimento"
+
+#: view/linequality/overview.js:851
+msgid "Volume"
+msgstr "Volume"
+
+#: view/linequality/overview.js:855
+msgid "yes"
+msgstr "sì"
+
+#: view/linequality/overview.js:868
+msgid "Internet outage"
+msgstr "Interruzione internet"
+
+#: view/linequality/overview.js:869
+msgid "WAN disconnected"
+msgstr "WAN disconnessa"
+
+#: view/linequality/overview.js:870
+msgid "Link down"
+msgstr "Collegamento interrotto"
+
+#: view/linequality/overview.js:871
+msgid "Monitoring gap"
+msgstr "Monitoraggio interrotto"
+
+#: view/linequality/overview.js:882
+msgid "gateway reachable"
+msgstr "gateway raggiungibile"
+
+#: view/linequality/overview.js:884
+msgid "gateway unreachable"
+msgstr "gateway non raggiungibile"
+
+#: view/linequality/overview.js:887
+msgid "WAN up"
+msgstr "WAN attiva"
+
+#: view/linequality/overview.js:889
+msgid "WAN down"
+msgstr "WAN inattiva"
+
+#: view/linequality/overview.js:893
+msgid "IP changed"
+msgstr "IP cambiato"
+
+#: view/linequality/overview.js:896
+msgid "clean shutdown"
+msgstr "arresto regolare"
+
+#: view/linequality/overview.js:896
+msgid "unclean shutdown"
+msgstr "arresto anomalo"
+
+#: view/linequality/overview.js:905
+msgid "No outages recorded."
+msgstr "Nessuna interruzione registrata."
+
+#: view/linequality/overview.js:911
+msgid "Type"
+msgstr "Tipo"
+
+#: view/linequality/overview.js:911
+msgid "Start"
+msgstr "Inizio"
+
+#: view/linequality/overview.js:911
+msgid "End"
+msgstr "Fine"
+
+#: view/linequality/overview.js:912
+msgid "Duration"
+msgstr "Durata"
+
+#: view/linequality/overview.js:912
+msgid "Details"
+msgstr "Dettagli"
+
+#: view/linequality/overview.js:921
+msgid "ongoing"
+msgstr "in corso"
+
+#: view/linequality/overview.js:938
+msgid "Date"
+msgstr "Data"
+
+#: view/linequality/overview.js:938
+msgid "Trigger"
+msgstr "Avvio"
+
+#: view/linequality/overview.js:949
+msgid "Scheduled"
+msgstr "Programmato"
+
+#: view/linequality/overview.js:949
+msgid "Manual"
+msgstr "Manuale"
+
+#: view/linequality/overview.js:950
+msgid "Failed"
+msgstr "Fallito"
+
+#: view/linequality/overview.js:979
+msgid "Downloaded"
+msgstr "Scaricati"
+
+#: view/linequality/overview.js:979
+msgid "Uploaded"
+msgstr "Inviati"
+
+#: view/linequality/overview.js:980
+msgid "Average speed"
+msgstr "Velocità media"
+
+#: view/linequality/overview.js:980
+msgid "Peak speed"
+msgstr "Velocità di picco"
+
+#: view/linequality/overview.js:981
+msgid "Uptime"
+msgstr "Disponibilità"
+
+#: view/linequality/overview.js:982
+msgid "Average RTT"
+msgstr "RTT medio"
+
+#: view/linequality/settings.js:11
+msgid "Configure the WAN line quality monitor: which interface and hosts to probe, where to store the history and when to run speed tests."
+msgstr "Configura il monitor della qualità della linea WAN: quale interfaccia e quali host sondare, dove salvare lo storico e quando eseguire i test di velocità."
+
+#: view/linequality/settings.js:17
+msgid "General"
+msgstr "Generale"
+
+#: view/linequality/settings.js:18
+msgid "Probes"
+msgstr "Sonde"
+
+#: view/linequality/settings.js:19
+msgid "Storage"
+msgstr "Archiviazione"
+
+#: view/linequality/settings.js:22
+msgid "Enable"
+msgstr "Abilita"
+
+#: view/linequality/settings.js:23
+msgid "Run the line quality collector."
+msgstr "Esegui il collettore della qualità della linea."
+
+#: view/linequality/settings.js:27
+msgid "WAN interface"
+msgstr "Interfaccia WAN"
+
+#: view/linequality/settings.js:28
+msgid "The logical interface whose connection is monitored (traffic counters, connection state and public address)."
+msgstr "L'interfaccia logica di cui viene monitorata la connessione (contatori di traffico, stato della connessione e indirizzo pubblico)."
+
+#: view/linequality/settings.js:33
+msgid "Probe targets"
+msgstr "Destinazioni delle sonde"
+
+#: view/linequality/settings.js:34
+msgid "IP addresses pinged once per second to measure latency, jitter and packet loss. The special value \"gateway\" is resolved automatically to the provider-side address of the connection. Internet outages are detected when all targets other than the gateway stop answering."
+msgstr "Indirizzi IP a cui viene inviato un ping al secondo per misurare latenza, jitter e perdita di pacchetti. Il valore speciale \"gateway\" viene risolto automaticamente nell'indirizzo lato provider della connessione. Le interruzioni di internet vengono rilevate quando tutte le destinazioni diverse dal gateway smettono di rispondere."
+
+#: view/linequality/settings.js:38
+msgid "Outage threshold"
+msgstr "Soglia di interruzione"
+
+#: view/linequality/settings.js:39
+msgid "Number of consecutive seconds with every probe lost before an internet outage is recorded."
+msgstr "Numero di secondi consecutivi con tutte le sonde perse prima di registrare un'interruzione di internet."
+
+#: view/linequality/settings.js:44
+msgid "Data directory"
+msgstr "Cartella dati"
+
+#: view/linequality/settings.js:45
+msgid "Where the history is stored. The default is persistent flash storage; samples are written only once per hour to limit flash wear."
+msgstr "Dove viene salvato lo storico. Quella predefinita è la memoria flash persistente; i campioni vengono scritti una sola volta all'ora per limitare l'usura della flash."
+
+#: view/linequality/settings.js:49
+msgid "Hourly data retention"
+msgstr "Conservazione dati orari"
+
+#: view/linequality/settings.js:50
+msgid "Days of hourly samples to keep."
+msgstr "Giorni di campioni orari da conservare."
+
+#: view/linequality/settings.js:55
+msgid "Daily data retention"
+msgstr "Conservazione dati giornalieri"
+
+#: view/linequality/settings.js:56
+msgid "Days of daily summaries to keep."
+msgstr "Giorni di riepiloghi giornalieri da conservare."
+
+#: view/linequality/settings.js:61
+msgid "Schedule"
+msgstr "Programmazione"
+
+#: view/linequality/settings.js:62
+msgid "Local times of day for automatic speed tests, separated by spaces, for example \"03:30 15:30\". Leave empty to disable scheduled tests. Requires the librespeed-cli package."
+msgstr "Orari locali dei test di velocità automatici, separati da spazi, ad esempio \"03:30 15:30\". Lascia vuoto per disattivare i test programmati. Richiede il pacchetto librespeed-cli."
+
+#: view/linequality/settings.js:72
+msgid "Expected times in HH:MM format, separated by spaces"
+msgstr "Sono attesi orari nel formato HH:MM, separati da spazi"
+
+#: view/linequality/settings.js:77
+msgid "Test duration"
+msgstr "Durata del test"
+
+#: view/linequality/settings.js:78
+msgid "Seconds spent on each of the download and upload phases. Note that on a multi-gigabit line each test can transfer several GB of data."
+msgstr "Secondi dedicati a ciascuna fase di download e upload. Su una linea multi-gigabit ogni test può trasferire diversi GB di dati."
+
+#: view/linequality/settings.js:83
+msgid "Parallel connections"
+msgstr "Connessioni parallele"
+
+#: view/linequality/settings.js:84
+msgid "Number of simultaneous connections used by the test."
+msgstr "Numero di connessioni simultanee usate dal test."
+
+#: view/linequality/settings.js:89
+msgid "Server ID"
+msgstr "ID server"
+
+#: view/linequality/settings.js:90
+msgid "Optional LibreSpeed server ID. Leave empty to pick the closest server automatically."
+msgstr "ID facoltativo del server LibreSpeed. Lascia vuoto per scegliere automaticamente il server più vicino."
+
+#: root/usr/share/luci/menu.d/luci-app-linequality.json:1
+msgid "Overview"
+msgstr "Panoramica"
+
+#: root/usr/share/luci/menu.d/luci-app-linequality.json:1
+msgid "Settings"
+msgstr "Impostazioni"
+

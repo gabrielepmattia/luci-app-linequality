@@ -1,0 +1,51 @@
+name: Build packages
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: OpenWrt ${{ matrix.release }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Both packages are architecture-independent (PKGARCH:=all), so one
+        # SDK per release is enough: 24.10 produces .ipk, 25.12 produces .apk.
+        release: ['24.10', '25.12']
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build
+        uses: openwrt/gh-action-sdk@v11
+        env:
+          ARCH: x86-64-openwrt-${{ matrix.release }}
+          FEEDNAME: linequality
+          PACKAGES: linequality luci-app-linequality
+
+      - name: Collect packages
+        run: |
+          mkdir -p dist
+          find bin/packages -path '*/linequality/*' \( -name '*.ipk' -o -name '*.apk' \) -exec cp {} dist/ \;
+          ls -la dist
+          test -n "$(ls dist)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-openwrt-${{ matrix.release }}
+          path: dist/*
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

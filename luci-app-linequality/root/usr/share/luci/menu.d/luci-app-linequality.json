@@ -1,0 +1,29 @@
+{
+	"admin/status/linequality": {
+		"title": "Line quality",
+		"order": 60,
+		"action": {
+			"type": "firstchild"
+		},
+		"depends": {
+			"acl": [ "luci-app-linequality" ],
+			"uci": { "linequality": true }
+		}
+	},
+	"admin/status/linequality/overview": {
+		"title": "Overview",
+		"order": 1,
+		"action": {
+			"type": "view",
+			"path": "linequality/overview"
+		}
+	},
+	"admin/status/linequality/settings": {
+		"title": "Settings",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "linequality/settings"
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"luci-app-linequality": {
+		"description": "Grant access to LuCI app linequality",
+		"read": {
+			"ubus": {
+				"linequality": [ "status", "series", "events", "speedtests" ]
+			},
+			"uci": [ "linequality" ]
+		},
+		"write": {
+			"ubus": {
+				"linequality": [ "speedtest_run" ]
+			},
+			"uci": [ "linequality" ]
+		}
+	}
+}
