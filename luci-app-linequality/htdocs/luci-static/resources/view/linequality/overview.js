@@ -39,6 +39,7 @@ var callSpeedtestRun = rpc.declare({
 });
 
 var RANGES = [ '1h', '24h', '7d', '30d', '1y' ];
+var RANGE_SECONDS = { '1h': 3600, '24h': 86400, '7d': 7 * 86400, '30d': 30 * 86400, '1y': 365 * 86400 };
 var SVGNS = 'http://www.w3.org/2000/svg';
 
 var CSS = [
@@ -180,14 +181,17 @@ function fmtTick(t, range) {
 	return d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 }
 
-function niceMax(v) {
+/* round axis for data up to v: a 1/2/5 step giving 3-5 intervals */
+function niceScale(v) {
 	if (!(v > 0))
-		return 1;
+		v = 1;
 
-	var p = Math.pow(10, Math.floor(Math.log(v) / Math.LN10)),
-	    n = v / p;
+	var raw = v / 4,
+	    p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)),
+	    n = raw / p,
+	    step = (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
 
-	return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+	return { step: step, max: step * Math.ceil(v / step), digits: step >= 1 ? 0 : Math.ceil(-Math.log(step) / Math.LN10) };
 }
 
 function svgEl(name, attrs, children) {
@@ -268,16 +272,19 @@ function rowRate(r, bytes) {
 /* ---------- chart ---------- */
 
 /*
- * cfg: rows, step, range, yMax, yFmt, lines[{label,color,vals,width,opacity,dash}],
+ * cfg: rows, step, range, now, yMax (data maximum), lines[{label,color,vals,width,opacity,dash}],
  *      bars[{i,frac}], shades[i], marks[i], tip(i) -> { title, items:[{color,label,value}] }
  */
 function drawChart(cfg) {
 	var W = 900, H = 230, ml = 56, mr = 12, mt = 10, mb = 24,
 	    pw = W - ml - mr, ph = H - mt - mb,
 	    rows = cfg.rows, step = cfg.step,
-	    t0 = rows[0].t, t1 = rows[rows.length - 1].t + step,
+	    /* always show the whole range, so missing data reads as a gap */
+	    t1 = Math.max(rows[rows.length - 1].t + step, cfg.now || 0),
+	    t0 = Math.min(rows[0].t, t1 - (RANGE_SECONDS[cfg.range] || 0)),
 	    span = t1 - t0,
-	    ymax = cfg.yMax,
+	    yscale = niceScale(cfg.yMax),
+	    ymax = yscale.max,
 	    X = function(t) { return ml + (t - t0) / span * pw; },
 	    Y = function(v) { return mt + ph - Math.min(v, ymax) / ymax * ph; },
 	    svg = svgEl('svg', { 'class': 'lq-svg', viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': cfg.title }),
@@ -294,11 +301,11 @@ function drawChart(cfg) {
 	});
 
 	/* grid and y axis */
-	for (k = 0; k <= 4; k++) {
-		var yv = ymax * k / 4, yy = Y(yv);
+	for (k = 0; k * yscale.step <= ymax + 1e-9; k++) {
+		var yv = k * yscale.step, yy = Y(yv);
 
 		svg.appendChild(svgEl('line', { x1: ml, x2: W - mr, y1: yy, y2: yy, stroke: k == 0 ? 'currentColor' : 'var(--lq-grid)', 'stroke-opacity': k == 0 ? .5 : 1, 'stroke-width': 1 }));
-		svg.appendChild(svgEl('text', { x: ml - 6, y: yy + 4, 'text-anchor': 'end' }, [ cfg.yFmt(yv) ]));
+		svg.appendChild(svgEl('text', { x: ml - 6, y: yy + 4, 'text-anchor': 'end' }, [ yv.toFixed(yscale.digits) ]));
 	}
 
 	/* x axis ticks */
@@ -398,6 +405,10 @@ function drawChart(cfg) {
 				best = i;
 			}
 		}
+
+		/* no read-out over the empty part of the range */
+		if (bd > step * 1.5)
+			return hide();
 
 		var x = X(rows[best].t + step / 2), info = cfg.tip(best);
 
@@ -792,7 +803,7 @@ return view.extend({
 
 		var latency = drawChart({
 			title: _('Latency'), rows: rows, step: step, range: this.range,
-			yMax: niceMax(maxRtt * 1.1), yFmt: function(v) { return v >= 10 ? v.toFixed(0) : v.toFixed(1); },
+			now: this.stat && this.stat.now, yMax: maxRtt * 1.1,
 			lines: lines, bars: bars, shades: shades, legend: latLegend,
 			tip: function(i) {
 				var items = lines.map(function(ln) {
@@ -834,7 +845,7 @@ return view.extend({
 
 		var throughput = drawChart({
 			title: _('Throughput') + ' (' + unitName + ')', rows: rows, step: step, range: this.range,
-			yMax: niceMax(maxBps / unit * 1.05), yFmt: function(v) { return v >= 10 ? v.toFixed(0) : v.toFixed(1); },
+			now: this.stat && this.stat.now, yMax: maxBps / unit * 1.05,
 			lines: [
 				{ color: c1, opacity: .4, width: 1, nodot: true, vals: rows.map(function(r) { return sc(r.rx_peak); }) },
 				{ color: c2, opacity: .4, width: 1, nodot: true, vals: rows.map(function(r) { return sc(r.tx_peak); }) },

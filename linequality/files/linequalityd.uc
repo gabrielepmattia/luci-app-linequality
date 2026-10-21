@@ -903,8 +903,10 @@ function api_speedtest_run() {
 }
 
 function publish() {
+	// ucode rejects undeclared arguments, and calls made through rpcd/LuCI always
+	// carry ubus_rpc_session
 	let wrap = (fn, argspec) => ({
-		args: argspec,
+		args: { ...argspec, ubus_rpc_session: '' },
 		call: function(req) {
 			try {
 				return fn(req.args ?? {});
