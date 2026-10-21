@@ -28,7 +28,8 @@ luci-app-linequality/
   root/usr/share/rpcd/acl.d/luci-app-linequality.json
   po/templates/linequality.pot
   po/it/linequality.po
-scripts/dev-install.sh        copy files to a router over ssh, without packaging
+install.sh                    copy this checkout to a router over ssh, without packaging
+scripts/po2lmo.py             .po -> .lmo (Python port of LuCI's po2lmo)
 .github/workflows/build.yml   build ipk/apk with openwrt/gh-action-sdk
 ```
 

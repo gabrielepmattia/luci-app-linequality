@@ -146,10 +146,10 @@ The response formats are documented in [DESIGN.md](DESIGN.md).
 ## Development
 
 ```sh
-# copy the files to a router over ssh, without building packages
-# (set PO2LMO=/path/to/po2lmo to install translations too)
-scripts/dev-install.sh root@192.168.1.1
-scripts/dev-install.sh root@192.168.1.1 --uninstall
+# copy this checkout to a router over ssh, without building packages
+# (the host defaults to $LINEQUALITY_HOST, then root@192.168.1.1)
+./install.sh root@192.168.1.1
+./install.sh root@192.168.1.1 --uninstall
 
 # pure-function self test, runs anywhere ucode is installed
 ucode linequality/files/linequalityd.uc --selftest
@@ -160,6 +160,8 @@ The collector also takes `--data-dir`, `--ubus-name`, `--target`,
 instance next to the real one.
 
 Translations live in `luci-app-linequality/po/`. Italian is included.
+`install.sh` compiles them with LuCI's `po2lmo` when it is installed, otherwise
+with `scripts/po2lmo.py`, a Python port that writes identical files.
 
 ## License
 

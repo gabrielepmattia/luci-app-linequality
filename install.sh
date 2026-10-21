@@ -1,23 +1,24 @@
 #!/bin/sh
-# Install (or remove) linequality and luci-app-linequality on a router over ssh,
-# without building packages. Usage:
-#   scripts/dev-install.sh [root@host]
-#   scripts/dev-install.sh [root@host] --uninstall
+# Install (or remove) linequality and luci-app-linequality from this checkout on
+# a router over ssh, without building packages. Usage:
+#   ./install.sh [root@host]
+#   ./install.sh [root@host] --uninstall
+# The host defaults to $LINEQUALITY_HOST, then root@192.168.1.1.
 # An existing /etc/config/linequality is never overwritten.
 
 set -eu
 
-HOST=root@192.168.1.1
+HOST=${LINEQUALITY_HOST:-root@192.168.1.1}
 UNINSTALL=0
 for arg in "$@"; do
 	case "$arg" in
 	--uninstall) UNINSTALL=1 ;;
-	-h|--help) sed -n '2,6p' "$0"; exit 0 ;;
+	-h|--help) sed -n '2,7p' "$0"; exit 0 ;;
 	*) HOST=$arg ;;
 	esac
 done
 
-TOP=$(cd "$(dirname "$0")/.." && pwd)
+TOP=$(cd "$(dirname "$0")" && pwd)
 BACKEND=$TOP/linequality/files
 LUCI=$TOP/luci-app-linequality
 
@@ -67,8 +68,11 @@ else
 	put_glob "$LUCI/htdocs/luci-static/resources/view/linequality" '*.js' /www/luci-static/resources/view/linequality 0644
 	put_glob "$LUCI/root/usr/share/luci/menu.d" '*.json' /usr/share/luci/menu.d 0644
 	put_glob "$LUCI/root/usr/share/rpcd/acl.d" '*.json' /usr/share/rpcd/acl.d 0644
-	# translations are compiled only when po2lmo (LuCI build tools) is available
+	# translations: LuCI's po2lmo if installed, otherwise the Python port
 	PO2LMO=${PO2LMO:-$(command -v po2lmo || true)}
+	if [ -z "$PO2LMO" ] && command -v python3 >/dev/null; then
+		PO2LMO=$TOP/scripts/po2lmo.py
+	fi
 	if [ -n "$PO2LMO" ]; then
 		for po in "$LUCI"/po/*/linequality.po; do
 			lang=${po%/*}
