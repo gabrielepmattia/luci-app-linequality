@@ -2,499 +2,1006 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
-#: view/linequality/overview.js:136
+#: view/linequality/overview.js:144
 #, javascript-format
 msgid "%d s"
 msgstr ""
 
-#: view/linequality/overview.js:144
+#: view/linequality/overview.js:152
 #, javascript-format
 msgid "%d d"
 msgstr ""
 
-#: view/linequality/overview.js:144
+#: view/linequality/overview.js:152
 #, javascript-format
 msgid "%d h"
 msgstr ""
 
-#: view/linequality/overview.js:147
+#: view/linequality/overview.js:155
 #, javascript-format
 msgid "%d min"
 msgstr ""
 
-#: view/linequality/overview.js:495
+#: view/linequality/overview.js:377
+msgid "Line hang-up"
+msgstr ""
+
+#: view/linequality/overview.js:378
+msgid "Closed by the provider"
+msgstr ""
+
+#: view/linequality/overview.js:379
+msgid "No reply to keepalive"
+msgstr ""
+
+#: view/linequality/overview.js:380
+msgid "Restarted locally"
+msgstr ""
+
+#: view/linequality/overview.js:381
+msgid "Authentication failed"
+msgstr ""
+
+#: view/linequality/overview.js:382
+msgid "No answer from the provider (PADO)"
+msgstr ""
+
+#: view/linequality/overview.js:383
+msgid "Other"
+msgstr ""
+
+#: view/linequality/overview.js:665
 msgid "Line quality"
 msgstr ""
 
-#: view/linequality/overview.js:498
+#: view/linequality/overview.js:668
 msgid "History"
 msgstr ""
 
-#: view/linequality/overview.js:502
+#: view/linequality/overview.js:672
 msgid "Outages and disconnections"
 msgstr ""
 
-#: view/linequality/overview.js:503
+#: view/linequality/overview.js:673
+msgid "Public IP history"
+msgstr ""
+
+#: view/linequality/overview.js:674
 msgid "Speed tests"
 msgstr ""
 
-#: view/linequality/overview.js:504
+#: view/linequality/overview.js:675
 msgid "Daily summary, last 30 days"
 msgstr ""
 
-#: view/linequality/overview.js:552
+#: view/linequality/overview.js:725
 msgid "Range"
 msgstr ""
 
-#: view/linequality/overview.js:579
+#: view/linequality/overview.js:752
 msgid "No data from the collector. Is the linequality service running?"
 msgstr ""
 
-#: view/linequality/overview.js:593
+#: view/linequality/overview.js:766
 msgid "Offline"
 msgstr ""
 
-#: view/linequality/overview.js:597
+#: view/linequality/overview.js:770
 msgid "Degraded"
 msgstr ""
 
-#: view/linequality/overview.js:601
+#: view/linequality/overview.js:774
 msgid "Online"
 msgstr ""
 
-#: view/linequality/overview.js:609
+#: view/linequality/overview.js:782
 msgid "Line state"
 msgstr ""
 
-#: view/linequality/overview.js:612
+#: view/linequality/overview.js:785
 msgid "Interface"
 msgstr ""
 
-#: view/linequality/overview.js:613
+#: view/linequality/overview.js:786
 msgid "Connection uptime"
 msgstr ""
 
-#: view/linequality/overview.js:614
+#: view/linequality/overview.js:787
 msgid "Public IP"
 msgstr ""
 
-#: view/linequality/overview.js:615
+#: view/linequality/overview.js:788
+msgid "IPv6 prefix"
+msgstr ""
+
+#: view/linequality/overview.js:789
 msgid "Gateway"
 msgstr ""
 
-#: view/linequality/overview.js:616
+#: view/linequality/overview.js:790
+msgid "Last disconnect cause"
+msgstr ""
+
+#: view/linequality/overview.js:791
 msgid "Link"
 msgstr ""
 
-#: view/linequality/overview.js:616
+#: view/linequality/overview.js:791
 msgid "No carrier"
 msgstr ""
 
-#: view/linequality/overview.js:620
+#: view/linequality/overview.js:795
 msgid "Availability"
 msgstr ""
 
-#: view/linequality/overview.js:621
+#: view/linequality/overview.js:796
 msgid "Last 24 hours"
 msgstr ""
 
-#: view/linequality/overview.js:621
+#: view/linequality/overview.js:796
 msgid "Last 7 days"
 msgstr ""
 
-#: view/linequality/overview.js:621
+#: view/linequality/overview.js:796
 msgid "Last 30 days"
 msgstr ""
 
-#: view/linequality/overview.js:628
+#: view/linequality/overview.js:803
 #, javascript-format
 msgid "%d disconnects"
 msgstr ""
 
-#: view/linequality/overview.js:636
+#: view/linequality/overview.js:811
 msgid "Traffic"
 msgstr ""
 
-#: view/linequality/overview.js:637
+#: view/linequality/overview.js:812
 msgid "Today"
 msgstr ""
 
-#: view/linequality/overview.js:638
+#: view/linequality/overview.js:813
 msgid "This month"
 msgstr ""
 
-#: view/linequality/overview.js:644
+#: view/linequality/overview.js:819
 msgid "Speed"
 msgstr ""
 
-#: view/linequality/overview.js:645
+#: view/linequality/overview.js:820
 msgid "Live"
 msgstr ""
 
-#: view/linequality/overview.js:646
+#: view/linequality/overview.js:821
 msgid "Average, 24 h"
 msgstr ""
 
-#: view/linequality/overview.js:647
+#: view/linequality/overview.js:822
 msgid "Peak, 24 h"
 msgstr ""
 
-#: view/linequality/overview.js:652
+#: view/linequality/overview.js:830
 msgid "Latency, last 5 minutes"
 msgstr ""
 
-#: view/linequality/overview.js:654
+#: view/linequality/overview.js:832
 msgid "Target"
 msgstr ""
 
-#: view/linequality/overview.js:654
+#: view/linequality/overview.js:832
 msgid "RTT"
 msgstr ""
 
-#: view/linequality/overview.js:654
+#: view/linequality/overview.js:832
+msgid "p95"
+msgstr ""
+
+#: view/linequality/overview.js:832
 msgid "Loss"
 msgstr ""
 
-#: view/linequality/overview.js:654
+#: view/linequality/overview.js:832
 msgid "Jitter"
 msgstr ""
 
-#: view/linequality/overview.js:665
+#: view/linequality/overview.js:845
+msgid "DNS"
+msgstr ""
+
+#: view/linequality/overview.js:850
 msgid "No data yet"
 msgstr ""
 
-#: view/linequality/overview.js:675
+#: view/linequality/overview.js:858
+msgid "Router"
+msgstr ""
+
+#: view/linequality/overview.js:859
+msgid "CPU now"
+msgstr ""
+
+#: view/linequality/overview.js:859
+msgid "busiest core"
+msgstr ""
+
+#: view/linequality/overview.js:860
+msgid "CPU average, 24 h"
+msgstr ""
+
+#: view/linequality/overview.js:861
+msgid "Peak core, 24 h"
+msgstr ""
+
+#: view/linequality/overview.js:863
+msgid "Errors, 24 h"
+msgstr ""
+
+#: view/linequality/overview.js:864
+msgid "Drops, 24 h"
+msgstr ""
+
+#: view/linequality/overview.js:865
+msgid "CRC errors, 24 h"
+msgstr ""
+
+#: view/linequality/overview.js:875
 msgid "Last speed test"
 msgstr ""
 
-#: view/linequality/overview.js:683
+#: view/linequality/overview.js:883
 msgid "Ping"
 msgstr ""
 
-#: view/linequality/overview.js:685
+#: view/linequality/overview.js:885
 msgid "Bufferbloat"
 msgstr ""
 
-#: view/linequality/overview.js:687
+#: view/linequality/overview.js:887
+msgid "Of contracted speed"
+msgstr ""
+
+#: view/linequality/overview.js:888
+msgid "Router CPU during the test"
+msgstr ""
+
+#: view/linequality/overview.js:889
 msgid "Server"
 msgstr ""
 
-#: view/linequality/overview.js:688
+#: view/linequality/overview.js:890
 msgid "When"
 msgstr ""
 
-#: view/linequality/overview.js:693
+#: view/linequality/overview.js:895
 msgid "The last speed test failed"
 msgstr ""
 
-#: view/linequality/overview.js:698
+#: view/linequality/overview.js:900
 msgid "No speed test yet"
 msgstr ""
 
-#: view/linequality/overview.js:702
+#: view/linequality/overview.js:904
 msgid "Speed tests need the librespeed-cli package. Install it (opkg install librespeed-cli, or apk add librespeed-cli) to enable them."
 msgstr ""
 
-#: view/linequality/overview.js:714
+#: view/linequality/overview.js:916
 msgid "Speed test running…"
 msgstr ""
 
-#: view/linequality/overview.js:714
+#: view/linequality/overview.js:916
 msgid "Run speed test"
 msgstr ""
 
-#: view/linequality/overview.js:720
+#: view/linequality/overview.js:922
 #, javascript-format
 msgid "Running for %s"
 msgstr ""
 
-#: view/linequality/overview.js:737
+#: view/linequality/overview.js:939
 msgid "A speed test is already running."
 msgstr ""
 
-#: view/linequality/overview.js:738
+#: view/linequality/overview.js:940
 msgid "Speed tests are not available: librespeed-cli is not installed."
 msgstr ""
 
-#: view/linequality/overview.js:739
+#: view/linequality/overview.js:941
 #, javascript-format
 msgid "Unable to start the speed test: %s"
 msgstr ""
 
-#: view/linequality/overview.js:760
+#: view/linequality/overview.js:962
 msgid "No data collected yet for this range."
 msgstr ""
 
-#: view/linequality/overview.js:789
+#: view/linequality/overview.js:991
 msgid "Packet loss"
 msgstr ""
 
-#: view/linequality/overview.js:791
+#: view/linequality/overview.js:993
 msgid "Outage"
 msgstr ""
 
-#: view/linequality/overview.js:794
+#: view/linequality/overview.js:996
 msgid "Latency"
 msgstr ""
 
-#: view/linequality/overview.js:828
+#: view/linequality/overview.js:1030
 msgid "Download"
 msgstr ""
 
-#: view/linequality/overview.js:828
+#: view/linequality/overview.js:1030
 msgid "Upload"
 msgstr ""
 
-#: view/linequality/overview.js:829
+#: view/linequality/overview.js:1031
 msgid "Download peak"
 msgstr ""
 
-#: view/linequality/overview.js:829
+#: view/linequality/overview.js:1031
 msgid "Upload peak"
 msgstr ""
 
-#: view/linequality/overview.js:833
+#: view/linequality/overview.js:1035
 msgid "Speed test"
 msgstr ""
 
-#: view/linequality/overview.js:836
+#: view/linequality/overview.js:1038
 msgid "Throughput"
 msgstr ""
 
-#: view/linequality/overview.js:851
+#: view/linequality/overview.js:1053
 msgid "Volume"
 msgstr ""
 
-#: view/linequality/overview.js:855
+#: view/linequality/overview.js:1057
 msgid "yes"
 msgstr ""
 
-#: view/linequality/overview.js:868
+#: view/linequality/overview.js:1120
+msgid "Share of replies"
+msgstr ""
+
+#: view/linequality/overview.js:1120
+msgid "low to high"
+msgstr ""
+
+#: view/linequality/overview.js:1121
+msgid "Median"
+msgstr ""
+
+#: view/linequality/overview.js:1122
+msgid "95th percentile"
+msgstr ""
+
+#: view/linequality/overview.js:1126
+msgid "Latency distribution"
+msgstr ""
+
+#: view/linequality/overview.js:1149
+msgid "Replies"
+msgstr ""
+
+#: view/linequality/overview.js:1156
+msgid "Most common"
+msgstr ""
+
+#: view/linequality/overview.js:1179
+msgid "Errors and drops"
+msgstr ""
+
+#: view/linequality/overview.js:1181
+msgid "Errors"
+msgstr ""
+
+#: view/linequality/overview.js:1181
+msgid "Drops"
+msgstr ""
+
+#: view/linequality/overview.js:1181
+msgid "CRC errors"
+msgstr ""
+
+#: view/linequality/overview.js:1182
+msgid "No errors or drops in this range."
+msgstr ""
+
+#: view/linequality/overview.js:1202
+msgid "Router CPU"
+msgstr ""
+
+#: view/linequality/overview.js:1208
+msgid "Average"
+msgstr ""
+
+#: view/linequality/overview.js:1208
+msgid "Busiest core (peak)"
+msgstr ""
+
+#: view/linequality/overview.js:1228
+msgid "DNS response time"
+msgstr ""
+
+#: view/linequality/overview.js:1230
+msgid "Average response time"
+msgstr ""
+
+#: view/linequality/overview.js:1230
+msgid "Failed lookups"
+msgstr ""
+
+#: view/linequality/overview.js:1235
+msgid "Lookups"
+msgstr ""
+
+#: view/linequality/overview.js:1239
+msgid "Slowest"
+msgstr ""
+
+#: view/linequality/overview.js:1251
 msgid "Internet outage"
 msgstr ""
 
-#: view/linequality/overview.js:869
+#: view/linequality/overview.js:1252
 msgid "WAN disconnected"
 msgstr ""
 
-#: view/linequality/overview.js:870
+#: view/linequality/overview.js:1253
 msgid "Link down"
 msgstr ""
 
-#: view/linequality/overview.js:871
+#: view/linequality/overview.js:1255
 msgid "Monitoring gap"
 msgstr ""
 
-#: view/linequality/overview.js:882
+#: view/linequality/overview.js:1289
 msgid "gateway reachable"
 msgstr ""
 
-#: view/linequality/overview.js:884
+#: view/linequality/overview.js:1291
 msgid "gateway unreachable"
 msgstr ""
 
-#: view/linequality/overview.js:887
+#: view/linequality/overview.js:1294
 msgid "WAN up"
 msgstr ""
 
-#: view/linequality/overview.js:889
+#: view/linequality/overview.js:1296
 msgid "WAN down"
 msgstr ""
 
-#: view/linequality/overview.js:893
+#: view/linequality/overview.js:1301
+#, javascript-format
+msgid "peak loss %s"
+msgstr ""
+
+#: view/linequality/overview.js:1304
+msgid "speed test ran meanwhile"
+msgstr ""
+
+#: view/linequality/overview.js:1308
 msgid "IP changed"
 msgstr ""
 
-#: view/linequality/overview.js:896
+#: view/linequality/overview.js:1311
 msgid "clean shutdown"
 msgstr ""
 
-#: view/linequality/overview.js:896
+#: view/linequality/overview.js:1311
 msgid "unclean shutdown"
 msgstr ""
 
-#: view/linequality/overview.js:905
+#: view/linequality/overview.js:1321
+#, javascript-format
+msgid "Traceroute (%d hops)"
+msgstr ""
+
+#: view/linequality/overview.js:1329
+msgid "PPP log"
+msgstr ""
+
+#: view/linequality/overview.js:1341
 msgid "No outages recorded."
 msgstr ""
 
-#: view/linequality/overview.js:911
+#: view/linequality/overview.js:1347
 msgid "Type"
 msgstr ""
 
-#: view/linequality/overview.js:911
+#: view/linequality/overview.js:1347
 msgid "Start"
 msgstr ""
 
-#: view/linequality/overview.js:911
+#: view/linequality/overview.js:1347
 msgid "End"
 msgstr ""
 
-#: view/linequality/overview.js:912
+#: view/linequality/overview.js:1348
 msgid "Duration"
 msgstr ""
 
-#: view/linequality/overview.js:912
+#: view/linequality/overview.js:1348
+msgid "Cause"
+msgstr ""
+
+#: view/linequality/overview.js:1348
 msgid "Details"
 msgstr ""
 
-#: view/linequality/overview.js:921
+#: view/linequality/overview.js:1358
 msgid "ongoing"
 msgstr ""
 
-#: view/linequality/overview.js:938
+#: view/linequality/overview.js:1370
+msgid "No address changes recorded."
+msgstr ""
+
+#: view/linequality/overview.js:1376
 msgid "Date"
 msgstr ""
 
-#: view/linequality/overview.js:938
+#: view/linequality/overview.js:1376
+msgid "Address"
+msgstr ""
+
+#: view/linequality/overview.js:1377
+msgid "Previous"
+msgstr ""
+
+#: view/linequality/overview.js:1377
+msgid "New"
+msgstr ""
+
+#: view/linequality/overview.js:1384
+msgid "IPv4 address"
+msgstr ""
+
+#: view/linequality/overview.js:1401
 msgid "Trigger"
 msgstr ""
 
-#: view/linequality/overview.js:949
+#: view/linequality/overview.js:1403
+#, javascript-format
+msgid "% of plan"
+msgstr ""
+
+#: view/linequality/overview.js:1406
+msgid "CPU avg / peak core"
+msgstr ""
+
+#: view/linequality/overview.js:1415
 msgid "Scheduled"
 msgstr ""
 
-#: view/linequality/overview.js:949
+#: view/linequality/overview.js:1415
 msgid "Manual"
 msgstr ""
 
-#: view/linequality/overview.js:950
+#: view/linequality/overview.js:1416
 msgid "Failed"
 msgstr ""
 
-#: view/linequality/overview.js:979
+#: view/linequality/overview.js:1448
 msgid "Downloaded"
 msgstr ""
 
-#: view/linequality/overview.js:979
+#: view/linequality/overview.js:1448
 msgid "Uploaded"
 msgstr ""
 
-#: view/linequality/overview.js:980
+#: view/linequality/overview.js:1449
 msgid "Average speed"
 msgstr ""
 
-#: view/linequality/overview.js:980
+#: view/linequality/overview.js:1449
 msgid "Peak speed"
 msgstr ""
 
-#: view/linequality/overview.js:981
+#: view/linequality/overview.js:1450
 msgid "Uptime"
 msgstr ""
 
-#: view/linequality/overview.js:982
+#: view/linequality/overview.js:1451
 msgid "Average RTT"
 msgstr ""
 
-#: view/linequality/settings.js:11
-msgid "Configure the WAN line quality monitor: which interface and hosts to probe, where to store the history and when to run speed tests."
+#: view/linequality/overview.js:1451
+msgid "RTT p95"
 msgstr ""
 
-#: view/linequality/settings.js:17
-msgid "General"
+#: view/linequality/overview.js:1452
+msgid "DNS avg / failed"
 msgstr ""
 
-#: view/linequality/settings.js:18
-msgid "Probes"
+#: view/linequality/overview.js:1453
+msgid "Errors / drops / CRC"
+msgstr ""
+
+#: view/linequality/report.js:184
+msgid "Print"
+msgstr ""
+
+#: view/linequality/report.js:188
+msgid "Line quality report"
+msgstr ""
+
+#: view/linequality/report.js:190
+msgid "Monthly summary of the measurements taken by this router. Select a month to get a detailed statement, for example to support a complaint to your provider, then print it."
+msgstr ""
+
+#: view/linequality/report.js:209
+msgid "No data collected yet."
+msgstr ""
+
+#: view/linequality/report.js:209
+msgid "The report is not available. Is the linequality service running and up to date?"
+msgstr ""
+
+#: view/linequality/report.js:244
+msgid "Month"
+msgstr ""
+
+#: view/linequality/report.js:246
+msgid "Downtime"
+msgstr ""
+
+#: view/linequality/report.js:247
+msgid "Outages"
+msgstr ""
+
+#: view/linequality/report.js:248
+msgid "Outages of 1 min or more"
+msgstr ""
+
+#: view/linequality/report.js:249
+msgid "Longest outage"
+msgstr ""
+
+#: view/linequality/report.js:253
+msgid "Average speed test"
+msgstr ""
+
+#: view/linequality/report.js:313
+msgid "Total downtime"
+msgstr ""
+
+#: view/linequality/report.js:314
+msgid "Monitored time"
+msgstr ""
+
+#: view/linequality/report.js:319
+msgid "Number of outages"
+msgstr ""
+
+#: view/linequality/report.js:327
+msgid "Contracted speed"
+msgstr ""
+
+#: view/linequality/report.js:331
+msgid "Tests run"
+msgstr ""
+
+#: view/linequality/report.js:331
+#, javascript-format
+msgid "%d failed"
+msgstr ""
+
+#: view/linequality/report.js:333
+msgid "Minimum"
+msgstr ""
+
+#: view/linequality/report.js:336
+msgid "No speed tests this month."
+msgstr ""
+
+#: view/linequality/report.js:339
+msgid "Average vs contracted speed"
+msgstr ""
+
+#: view/linequality/report.js:345
+msgid "Latency and packet loss"
+msgstr ""
+
+#: view/linequality/report.js:356
+msgid "Traffic and line errors"
+msgstr ""
+
+#: view/linequality/report.js:360
+msgid "Router CPU average"
+msgstr ""
+
+#: view/linequality/report.js:371
+msgid "Outage list"
+msgstr ""
+
+#: view/linequality/report.js:391
+#, javascript-format
+msgid "Statement for %s"
+msgstr ""
+
+#: view/linequality/report.js:393
+#, javascript-format
+msgid "Generated on %s"
+msgstr ""
+
+#: view/linequality/report.js:399
+msgid "Measurements were taken from the customer router every second towards several independent hosts on the Internet. An outage is recorded when all of them stop answering for several consecutive seconds."
 msgstr ""
 
 #: view/linequality/settings.js:19
-msgid "Storage"
+msgid "Configure the WAN line quality monitor: which interface and hosts to probe, where to store the history and when to run speed tests."
 msgstr ""
 
-#: view/linequality/settings.js:22
-msgid "Enable"
+#: view/linequality/settings.js:25
+msgid "General"
 msgstr ""
 
-#: view/linequality/settings.js:23
-msgid "Run the line quality collector."
+#: view/linequality/settings.js:26
+msgid "Probes"
 msgstr ""
 
 #: view/linequality/settings.js:27
+msgid "Storage"
+msgstr ""
+
+#: view/linequality/settings.js:29
+msgid "Notifications"
+msgstr ""
+
+#: view/linequality/settings.js:31
+msgid "Enable"
+msgstr ""
+
+#: view/linequality/settings.js:32
+msgid "Run the line quality collector."
+msgstr ""
+
+#: view/linequality/settings.js:36
 msgid "WAN interface"
 msgstr ""
 
-#: view/linequality/settings.js:28
+#: view/linequality/settings.js:37
 msgid "The logical interface whose connection is monitored (traffic counters, connection state and public address)."
 msgstr ""
 
-#: view/linequality/settings.js:33
+#: view/linequality/settings.js:42
 msgid "Probe targets"
 msgstr ""
 
-#: view/linequality/settings.js:34
+#: view/linequality/settings.js:43
 msgid "IP addresses pinged once per second to measure latency, jitter and packet loss. The special value \"gateway\" is resolved automatically to the provider-side address of the connection. Internet outages are detected when all targets other than the gateway stop answering."
 msgstr ""
 
-#: view/linequality/settings.js:38
+#: view/linequality/settings.js:48
 msgid "Outage threshold"
 msgstr ""
 
-#: view/linequality/settings.js:39
+#: view/linequality/settings.js:49
 msgid "Number of consecutive seconds with every probe lost before an internet outage is recorded."
 msgstr ""
 
-#: view/linequality/settings.js:44
-msgid "Data directory"
-msgstr ""
-
-#: view/linequality/settings.js:45
-msgid "Where the history is stored. The default is persistent flash storage; samples are written only once per hour to limit flash wear."
-msgstr ""
-
-#: view/linequality/settings.js:49
-msgid "Hourly data retention"
-msgstr ""
-
-#: view/linequality/settings.js:50
-msgid "Days of hourly samples to keep."
+#: view/linequality/settings.js:54
+msgid "Packet loss threshold"
 msgstr ""
 
 #: view/linequality/settings.js:55
-msgid "Daily data retention"
+msgid "Packet loss, in percent over 60 seconds on the reference targets, above which a degraded-line event is recorded."
 msgstr ""
 
-#: view/linequality/settings.js:56
-msgid "Days of daily summaries to keep."
+#: view/linequality/settings.js:60
+msgid "IPv6 interface"
 msgstr ""
 
 #: view/linequality/settings.js:61
-msgid "Schedule"
+msgid "The logical interface that holds the delegated IPv6 prefix, used to record prefix changes. Leave empty to use the WAN interface name followed by 6 if it exists."
 msgstr ""
 
-#: view/linequality/settings.js:62
-msgid "Local times of day for automatic speed tests, separated by spaces, for example \"03:30 15:30\". Leave empty to disable scheduled tests. Requires the librespeed-cli package."
+#: view/linequality/settings.js:65
+msgid "Measure DNS response time"
 msgstr ""
 
-#: view/linequality/settings.js:72
-msgid "Expected times in HH:MM format, separated by spaces"
+#: view/linequality/settings.js:66
+msgid "Periodically look up a few host names and record how long the resolver takes to answer."
+msgstr ""
+
+#: view/linequality/settings.js:70
+msgid "DNS server"
+msgstr ""
+
+#: view/linequality/settings.js:71
+msgid "Resolver whose response time is measured. Leave empty to use the router's own resolver (127.0.0.1)."
 msgstr ""
 
 #: view/linequality/settings.js:77
-msgid "Test duration"
+msgid "DNS names"
 msgstr ""
 
 #: view/linequality/settings.js:78
-msgid "Seconds spent on each of the download and upload phases. Note that on a multi-gigabit line each test can transfer several GB of data."
-msgstr ""
-
-#: view/linequality/settings.js:83
-msgid "Parallel connections"
+msgid "Host names looked up in turn on the DNS server. If empty: openwrt.org, wikipedia.org and example.com."
 msgstr ""
 
 #: view/linequality/settings.js:84
+msgid "DNS interval"
+msgstr ""
+
+#: view/linequality/settings.js:85
+msgid "Seconds between two DNS lookups."
+msgstr ""
+
+#: view/linequality/settings.js:91
+msgid "Data directory"
+msgstr ""
+
+#: view/linequality/settings.js:92
+msgid "Where the history is stored. The default is persistent flash storage; samples are written only once per hour to limit flash wear."
+msgstr ""
+
+#: view/linequality/settings.js:96
+msgid "Hourly data retention"
+msgstr ""
+
+#: view/linequality/settings.js:97
+msgid "Days of hourly samples to keep."
+msgstr ""
+
+#: view/linequality/settings.js:102
+msgid "Daily data retention"
+msgstr ""
+
+#: view/linequality/settings.js:103
+msgid "Days of daily summaries to keep."
+msgstr ""
+
+#: view/linequality/settings.js:108
+msgid "Schedule"
+msgstr ""
+
+#: view/linequality/settings.js:109
+msgid "Local times of day for automatic speed tests, separated by spaces, for example \"03:30 15:30\". Leave empty to disable scheduled tests. Requires the librespeed-cli package."
+msgstr ""
+
+#: view/linequality/settings.js:119
+msgid "Expected times in HH:MM format, separated by spaces"
+msgstr ""
+
+#: view/linequality/settings.js:124
+msgid "Test duration"
+msgstr ""
+
+#: view/linequality/settings.js:125
+msgid "Seconds spent on each of the download and upload phases. Note that on a multi-gigabit line each test can transfer several GB of data."
+msgstr ""
+
+#: view/linequality/settings.js:130
+msgid "Parallel connections"
+msgstr ""
+
+#: view/linequality/settings.js:131
 msgid "Number of simultaneous connections used by the test."
 msgstr ""
 
-#: view/linequality/settings.js:89
+#: view/linequality/settings.js:136
 msgid "Server ID"
 msgstr ""
 
-#: view/linequality/settings.js:90
+#: view/linequality/settings.js:137
 msgid "Optional LibreSpeed server ID. Leave empty to pick the closest server automatically."
+msgstr ""
+
+#: view/linequality/settings.js:141
+msgid "Contracted download speed (Mbit/s)"
+msgstr ""
+
+#: view/linequality/settings.js:142
+msgid "The download speed of your subscription. Speed tests are compared with it. Leave empty if unknown."
+msgstr ""
+
+#: view/linequality/settings.js:147
+msgid "Contracted upload speed (Mbit/s)"
+msgstr ""
+
+#: view/linequality/settings.js:148
+msgid "The upload speed of your subscription. Speed tests are compared with it. Leave empty if unknown."
+msgstr ""
+
+#: view/linequality/settings.js:153
+msgid "Notification URL"
+msgstr ""
+
+#: view/linequality/settings.js:154
+msgid "Where to send notifications: an ntfy topic URL (for example https://ntfy.sh/my-topic) or a webhook URL. Leave empty to disable notifications. Requires curl."
+msgstr ""
+
+#: view/linequality/settings.js:162
+msgid "Expected an http:// or https:// URL"
+msgstr ""
+
+#: view/linequality/settings.js:165
+msgid "Notification type"
+msgstr ""
+
+#: view/linequality/settings.js:167
+msgid "Webhook (JSON)"
+msgstr ""
+
+#: view/linequality/settings.js:170
+msgid "Access token"
+msgstr ""
+
+#: view/linequality/settings.js:171
+msgid "Optional. Sent as a bearer token in the Authorization header."
+msgstr ""
+
+#: view/linequality/settings.js:175
+msgid "Message language"
+msgstr ""
+
+#: view/linequality/settings.js:180
+msgid "Minimum outage"
+msgstr ""
+
+#: view/linequality/settings.js:181
+msgid "Seconds. Only outages at least this long are notified, when the connection is restored."
+msgstr ""
+
+#: view/linequality/settings.js:186
+msgid "Notify packet loss"
+msgstr ""
+
+#: view/linequality/settings.js:187
+msgid "Also notify when the line was degraded by packet loss."
+msgstr ""
+
+#: view/linequality/settings.js:190
+msgid "Slow speed test alert"
+msgstr ""
+
+#: view/linequality/settings.js:191
+msgid "Notify when a speed test is below this percentage of the contracted speed. 0 disables the alert. Requires the contracted speed."
+msgstr ""
+
+#: view/linequality/settings.js:196
+msgid "Notify monitoring gaps"
+msgstr ""
+
+#: view/linequality/settings.js:197
+msgid "Notify at startup when the router or the service was down for a while."
+msgstr ""
+
+#: view/linequality/settings.js:200
+msgid "Test"
+msgstr ""
+
+#: view/linequality/settings.js:210
+msgid "Notifications are disabled: set a notification URL, save and apply the settings first."
+msgstr ""
+
+#: view/linequality/settings.js:212
+msgid "Notifications are not available: curl is not installed."
+msgstr ""
+
+#: view/linequality/settings.js:214
+#, javascript-format
+msgid "Unable to send the test notification: %s"
+msgstr ""
+
+#: view/linequality/settings.js:216
+msgid "Test notification queued. It should arrive within a minute."
+msgstr ""
+
+#: view/linequality/settings.js:221
+msgid "Send test notification"
+msgstr ""
+
+#: view/linequality/settings.js:223
+msgid "Save and apply the settings first: the test uses the saved configuration."
 msgstr ""
 
 #: root/usr/share/luci/menu.d/luci-app-linequality.json:1
 msgid "Overview"
+msgstr ""
+
+#: root/usr/share/luci/menu.d/luci-app-linequality.json:1
+msgid "Report"
 msgstr ""
 
 #: root/usr/share/luci/menu.d/luci-app-linequality.json:1

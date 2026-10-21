@@ -18,9 +18,17 @@
 			"path": "linequality/overview"
 		}
 	},
+	"admin/status/linequality/report": {
+		"title": "Report",
+		"order": 2,
+		"action": {
+			"type": "view",
+			"path": "linequality/report"
+		}
+	},
 	"admin/status/linequality/settings": {
 		"title": "Settings",
-		"order": 2,
+		"order": 3,
 		"action": {
 			"type": "view",
 			"path": "linequality/settings"

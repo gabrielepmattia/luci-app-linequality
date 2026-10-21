@@ -82,7 +82,14 @@ var CSS = [
 	'.lq .lq-empty { opacity:.65; padding:1.5em 0; text-align:center; }',
 	'.lq tr.lq-ongoing td { font-weight:700; color:var(--lq-bad); }',
 	'.lq .lq-tablewrap { overflow-x:auto; }',
-	'.lq .lq-num { text-align:right; font-variant-numeric:tabular-nums; }'
+	'.lq .lq-num { text-align:right; font-variant-numeric:tabular-nums; }',
+	'.lq .lq-chips { display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin:2px 0 4px 0; font-size:.85em; }',
+	'.lq .lq-chips .cbi-button { padding:0 .7em; min-height:0; line-height:1.8; }',
+	'.lq .lq-ramp { display:inline-block; width:5em; height:.7em; vertical-align:middle; margin:0 .4em; border:1px solid var(--lq-line);',
+	'  background:linear-gradient(to right, transparent, var(--lq-c1)); }',
+	'.lq details { margin-top:3px; }',
+	'.lq details summary { cursor:pointer; opacity:.8; font-size:.9em; }',
+	'.lq details pre { margin:3px 0 0 0; padding:4px 8px; font-size:.85em; white-space:pre-wrap; border:1px solid var(--lq-grid); border-radius:4px; background:transparent; }'
 ].join('\n');
 
 /* ---------- formatting helpers ---------- */
@@ -269,11 +276,123 @@ function rowRate(r, bytes) {
 	return (secs > 0 && isnum(bytes)) ? bytes * 8 / secs : null;
 }
 
+function sumArr(a, b) {
+	if (!b)
+		return a;
+
+	a = a || [];
+	b.forEach(function(v, i) { a[i] = (a[i] || 0) + (v || 0); });
+
+	return a;
+}
+
+/* ---------- latency histogram ---------- */
+
+/* upper edges in ms of the 18 bins; the open last bin is capped at 800 ms */
+var HEDGES = [ 1, 2, 3, 4, 6, 8, 10, 15, 20, 30, 40, 60, 80, 100, 150, 200, 400, 800 ];
+
+function histPercentile(h, q) {
+	if (!h)
+		return null;
+
+	var total = 0, i;
+
+	for (i = 0; i < HEDGES.length; i++)
+		total += h[i] || 0;
+
+	if (total <= 0)
+		return null;
+
+	var rank = q * total, cum = 0;
+
+	for (i = 0; i < HEDGES.length; i++) {
+		var c = h[i] || 0;
+
+		if (c > 0 && cum + c >= rank) {
+			var lo = i == 0 ? 0 : HEDGES[i - 1];
+
+			return lo + (rank - cum) / c * (HEDGES[i] - lo);
+		}
+
+		cum += c;
+	}
+
+	return HEDGES[HEDGES.length - 1];
+}
+
+/* sum of the histograms of the given labels in one or more rows */
+function rowsHist(rows, labels) {
+	var acc = null;
+
+	rows.forEach(function(r) {
+		labels.forEach(function(l) {
+			var h = (r.h || {})[l];
+
+			if (h)
+				acc = sumArr(acc || [], h);
+		});
+	});
+
+	return acc;
+}
+
+function histLabels(rows) {
+	var seen = {}, out = [];
+
+	rows.forEach(function(r) {
+		Object.keys(r.h || {}).forEach(function(l) {
+			if (!seen[l]) {
+				seen[l] = true;
+				out.push(l);
+			}
+		});
+	});
+
+	return out;
+}
+
+function sumField(rows, f) {
+	var v = null;
+
+	rows.forEach(function(r) {
+		if (isnum(r[f]))
+			v = (v || 0) + r[f];
+	});
+
+	return v;
+}
+
+function rowCpu(r) {
+	return (r.cpu && r.cpu[1] > 0) ? r.cpu[0] / r.cpu[1] : null;
+}
+
+function rowDns(r) {
+	var d = r.dns;
+
+	return d && d[0] > 0 ? { sent: d[0], ok: d[1] || 0, avg: d[1] > 0 ? d[2] / d[1] : null, max: d[3], fail: 100 * (1 - (d[1] || 0) / d[0]) } : null;
+}
+
+function causeLabel(c) {
+	switch (c) {
+	case 'peer_hangup': return _('Line hang-up');
+	case 'peer_terminated': return _('Closed by the provider');
+	case 'echo_timeout': return _('No reply to keepalive');
+	case 'local_restart': return _('Restarted locally');
+	case 'auth_failed': return _('Authentication failed');
+	case 'no_pado': return _('No answer from the provider (PADO)');
+	case 'other': return _('Other');
+	}
+
+	return c || '';
+}
+
 /* ---------- chart ---------- */
 
 /*
- * cfg: rows, step, range, now, yMax (data maximum), lines[{label,color,vals,width,opacity,dash}],
- *      bars[{i,frac}], shades[i], marks[i], tip(i) -> { title, items:[{color,label,value}] }
+ * cfg: rows, step, range, now, yMax (data maximum) or yScale {step,max,digits}, lines[{label,color,vals,width,opacity,dash}],
+ *      bars[{i,frac}], cols[{i,segs:[{v,color}]}], shades[i], marks[i], tip(i) -> { title, items:[{color,label,value}] },
+ *      heat { cells[{i,b,a}], nb, ticks[{pos,label}], map(v) } replaces the numeric y axis,
+ *      extra (nodes under the title), foot (nodes under the chart)
  */
 function drawChart(cfg) {
 	var W = 900, H = 230, ml = 56, mr = 12, mt = 10, mb = 24,
@@ -283,10 +402,12 @@ function drawChart(cfg) {
 	    t1 = Math.max(rows[rows.length - 1].t + step, cfg.now || 0),
 	    t0 = Math.min(rows[0].t, t1 - (RANGE_SECONDS[cfg.range] || 0)),
 	    span = t1 - t0,
-	    yscale = niceScale(cfg.yMax),
+	    yscale = cfg.yScale || niceScale(cfg.yMax),
 	    ymax = yscale.max,
+	    heat = cfg.heat,
 	    X = function(t) { return ml + (t - t0) / span * pw; },
-	    Y = function(v) { return mt + ph - Math.min(v, ymax) / ymax * ph; },
+	    Y = heat ? function(v) { return mt + ph - Math.max(0, Math.min(1, heat.map(v))) * ph; }
+	             : function(v) { return mt + ph - Math.min(v, ymax) / ymax * ph; },
 	    svg = svgEl('svg', { 'class': 'lq-svg', viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': cfg.title }),
 	    tip = E('div', { 'class': 'lq-tip' }),
 	    box = E('div', { 'class': 'lq-chartbox' }),
@@ -300,8 +421,29 @@ function drawChart(cfg) {
 		}));
 	});
 
+	/* heat map cells, drawn under the grid */
+	if (heat) {
+		var cellH = ph / heat.nb, cellW = Math.max(1, pw * step / span + .5);
+
+		heat.cells.forEach(function(c) {
+			svg.appendChild(svgEl('rect', {
+				x: X(rows[c.i].t), y: mt + ph - (c.b + 1) * cellH, width: cellW, height: cellH + .4,
+				fill: 'var(--lq-c1)', 'fill-opacity': c.a
+			}));
+		});
+
+		heat.ticks.forEach(function(tk) {
+			var yy = mt + ph - tk.pos * cellH;
+
+			svg.appendChild(svgEl('line', { x1: ml - 3, x2: ml, y1: yy, y2: yy, stroke: 'currentColor', 'stroke-opacity': .5 }));
+			svg.appendChild(svgEl('text', { x: ml - 6, y: yy + 4, 'text-anchor': 'end' }, [ tk.label ]));
+		});
+
+		svg.appendChild(svgEl('rect', { x: ml, y: mt, width: pw, height: ph, fill: 'none', stroke: 'var(--lq-grid)' }));
+	}
+
 	/* grid and y axis */
-	for (k = 0; k * yscale.step <= ymax + 1e-9; k++) {
+	for (k = 0; !heat && k * yscale.step <= ymax + 1e-9; k++) {
 		var yv = k * yscale.step, yy = Y(yv);
 
 		svg.appendChild(svgEl('line', { x1: ml, x2: W - mr, y1: yy, y2: yy, stroke: k == 0 ? 'currentColor' : 'var(--lq-grid)', 'stroke-opacity': k == 0 ? .5 : 1, 'stroke-width': 1 }));
@@ -326,6 +468,22 @@ function drawChart(cfg) {
 			x: X(rows[b.i].t), y: mt + ph - h, width: bw, height: h,
 			fill: 'var(--lq-bad)', opacity: .75, rx: 1
 		}));
+	});
+
+	/* stacked columns (errors and drops) */
+	var cw = Math.max(1, pw * step / span - 1);
+	(cfg.cols || []).forEach(function(c) {
+		var acc = 0;
+
+		c.segs.forEach(function(sg) {
+			if (!(sg.v > 0))
+				return;
+
+			var y1 = Y(acc), y2 = Y(acc + sg.v), h = Math.max(1.5, y1 - y2);
+
+			svg.appendChild(svgEl('rect', { x: X(rows[c.i].t), y: y1 - h, width: cw, height: h, fill: sg.color, opacity: .9 }));
+			acc += sg.v;
+		});
 	});
 
 	/* lines, broken at gaps */
@@ -456,7 +614,7 @@ function drawChart(cfg) {
 		return E('span', {}, [ E('span', { 'class': 'lq-sw', style: 'background:' + it.color + (it.faint ? ';opacity:.45' : '') }), it.label ]);
 	}));
 
-	dom.content(box, [ E('h4', {}, cfg.title), legend, svg, tip ]);
+	dom.content(box, [ E('h4', {}, cfg.title), cfg.extra || '', legend, svg, tip, cfg.foot || '' ]);
 
 	return box;
 }
@@ -499,6 +657,7 @@ return view.extend({
 		this.eventsEl = E('div', { 'class': 'lq-tablewrap' });
 		this.testsEl = E('div', { 'class': 'lq-tablewrap' });
 		this.dailyEl = E('div', { 'class': 'lq-tablewrap' });
+		this.ipsEl = E('div', { 'class': 'lq-tablewrap' });
 		this.toolbar = E('div', { 'class': 'lq-toolbar' });
 
 		var root = E('div', { 'class': 'lq' }, [
@@ -511,6 +670,7 @@ return view.extend({
 				this.chartsEl
 			]),
 			E('div', { 'class': 'cbi-section' }, [ E('h3', {}, _('Outages and disconnections')), this.eventsEl ]),
+			E('div', { 'class': 'cbi-section' }, [ E('h3', {}, _('Public IP history')), this.ipsEl ]),
 			E('div', { 'class': 'cbi-section' }, [ E('h3', {}, _('Speed tests')), this.testsEl ]),
 			E('div', { 'class': 'cbi-section' }, [ E('h3', {}, _('Daily summary, last 30 days')), this.dailyEl ])
 		]);
@@ -519,6 +679,7 @@ return view.extend({
 		this.updateCards();
 		this.updateCharts();
 		this.updateEvents();
+		this.updateIps();
 		this.updateTests();
 		this.updateDaily();
 
@@ -551,6 +712,7 @@ return view.extend({
 			self.daily = r[3] || self.daily;
 			self.updateCharts();
 			self.updateEvents();
+			self.updateIps();
 			self.updateTests();
 			self.updateDaily();
 		});
@@ -623,7 +785,9 @@ return view.extend({
 			kv(_('Interface'), (iface.name || '–') + (iface.l3_device ? ' (' + iface.l3_device + ')' : '')),
 			kv(_('Connection uptime'), iface.up ? fmtDur(iface.uptime) : '–'),
 			kv(_('Public IP'), iface.ipv4 || '–'),
+			iface.ipv6_prefix ? kv(_('IPv6 prefix'), iface.ipv6_prefix) : '',
 			kv(_('Gateway'), iface.gateway || '–'),
+			iface.last_cause ? kv(_('Last disconnect cause'), causeLabel(iface.last_cause)) : '',
 			iface.carrier === false || iface.carrier === 0 ? kv(_('Link'), _('No carrier'), 'lq-bad') : ''
 		]));
 
@@ -659,10 +823,13 @@ return view.extend({
 		]));
 
 		/* targets */
+		var hasP95 = targets.some(function(t) { return isnum(t.p95); }),
+		    dns = live.dns && live.dns.server ? live.dns : null;
+
 		cards.push(E('div', { 'class': 'lq-card' }, [
 			E('h3', {}, _('Latency, last 5 minutes')),
 			targets.length ? E('table', { 'class': 'lq-mini' }, [
-				E('tr', {}, [ E('th', {}, _('Target')), E('th', {}, _('RTT')), E('th', {}, _('Loss')), E('th', {}, _('Jitter')) ])
+				E('tr', {}, [ E('th', {}, _('Target')), E('th', {}, _('RTT')), hasP95 ? E('th', {}, _('p95')) : '', E('th', {}, _('Loss')), E('th', {}, _('Jitter')) ])
 			].concat(targets.map(function(t) {
 				return E('tr', {}, [
 					E('td', {}, [
@@ -670,11 +837,33 @@ return view.extend({
 						t.label == 'gateway' ? _('Gateway') : t.label
 					]),
 					E('td', {}, fmtMs(t.rtt_avg)),
+					hasP95 ? E('td', {}, fmtMs(t.p95)) : '',
 					E('td', { 'class': isnum(t.loss_pct) && t.loss_pct >= 2 ? 'lq-bad' : '' }, fmtPct(t.loss_pct, 1)),
 					E('td', {}, fmtMs(t.jitter))
 				]);
-			}))) : E('div', { 'class': 'lq-empty' }, _('No data yet'))
+			}).concat(dns ? [ E('tr', {}, [
+				E('td', {}, [ E('span', { 'class': 'lq-sw', style: 'background:currentColor;opacity:.5' }), _('DNS') + ' ' + dns.server ]),
+				E('td', {}, fmtMs(dns.rtt_avg)),
+				hasP95 ? E('td', {}, '–') : '',
+				E('td', { 'class': isnum(dns.fail_pct) && dns.fail_pct > 0 ? 'lq-bad' : '' }, fmtPct(dns.fail_pct, 1)),
+				E('td', {}, '–')
+			]) ] : []))) : E('div', { 'class': 'lq-empty' }, _('No data yet'))
 		]));
+
+		/* router */
+		var cpu = live.cpu || {};
+
+		if (isnum(cpu.busy) || isnum(d24.cpu_avg) || isnum(d24.crc) || isnum(d24.err))
+			cards.push(E('div', { 'class': 'lq-card' }, [
+				E('h3', {}, _('Router')),
+				kv(_('CPU now'), isnum(cpu.busy) ? fmtPct(cpu.busy, 0) + (isnum(cpu.core_max) ? ' · ' + _('busiest core') + ' ' + fmtPct(cpu.core_max, 0) : '') : '–'),
+				kv(_('CPU average, 24 h'), fmtPct(d24.cpu_avg, 0)),
+				kv(_('Peak core, 24 h'), fmtPct(d24.core_max, 0), isnum(d24.core_max) && d24.core_max >= 90 ? 'lq-warn' : ''),
+				E('div', { 'class': 'lq-sep' }),
+				kv(_('Errors, 24 h'), dash(d24.err, String), d24.err > 0 ? 'lq-warn' : ''),
+				kv(_('Drops, 24 h'), dash(d24.drop, String), d24.drop > 0 ? 'lq-warn' : ''),
+				kv(_('CRC errors, 24 h'), dash(d24.crc, String), d24.crc > 0 ? 'lq-bad' : '')
+			]));
 
 		cards.push(this.speedtestCard());
 
@@ -695,6 +884,8 @@ return view.extend({
 				kv(_('Jitter'), fmtMs(last.jitter)),
 				kv(_('Bufferbloat'), delta == null ? '–' : '+' + fmtMs(Math.max(0, delta)),
 					delta != null && delta > 100 ? 'lq-bad' : delta != null && delta > 30 ? 'lq-warn' : ''),
+				isnum(last.down_pct) || isnum(last.up_pct) ? kv(_('Of contracted speed'), arrows(fmtPct(last.down_pct, 0), fmtPct(last.up_pct, 0))) : '',
+				isnum(last.cpu_avg) ? kv(_('Router CPU during the test'), fmtPct(last.cpu_avg, 0) + ' · ' + _('busiest core') + ' ' + fmtPct(last.core_max, 0)) : '',
 				kv(_('Server'), last.server || '–'),
 				kv(_('When'), fmtDateTime(last.t))
 			);
@@ -869,7 +1060,188 @@ return view.extend({
 			}
 		});
 
-		dom.content(this.chartsEl, [ latency, throughput ]);
+		var charts = [ latency, throughput ];
+
+		this.extraCharts(rows, step, charts, ref);
+
+		dom.content(this.chartsEl, charts);
+	},
+
+	extraCharts: function(rows, step, charts, ref) {
+		var self = this, now = this.stat && this.stat.now, range = this.range;
+
+		/* latency distribution heat map */
+		var hl = histLabels(rows);
+
+		if (hl.length) {
+			var href = referenceLabels(hl), nb = HEDGES.length, i;
+
+			if (!this.heatTarget || hl.indexOf(this.heatTarget) < 0)
+				this.heatTarget = href[0];
+
+			var tg = this.heatTarget, cells = [], med = [], p95 = [], hs = [], tots = [];
+
+			rows.forEach(function(r, ri) {
+				var h = (r.h || {})[tg], total = 0;
+
+				hs.push(h || null);
+
+				if (h)
+					h.forEach(function(c) { total += c || 0; });
+
+				tots.push(total);
+
+				if (total > 0) {
+					for (var b = 0; b < nb; b++)
+						if (h[b] > 0)
+							cells.push({ i: ri, b: b, a: .1 + .9 * Math.sqrt(h[b] / total) });
+				}
+
+				med.push(total > 0 ? histPercentile(h, .5) : null);
+				p95.push(total > 0 ? histPercentile(h, .95) : null);
+			});
+
+			var ticks = [ 1, 2, 4, 8, 15, 30, 60, 100, 200, 800 ].map(function(e) {
+				return { pos: HEDGES.indexOf(e) + 1, label: String(e) };
+			});
+
+			var chips = hl.length > 1 ? E('div', { 'class': 'lq-chips' }, [ E('span', {}, _('Target') + ':') ].concat(hl.map(function(l) {
+				return E('button', {
+					'class': 'cbi-button' + (l == tg ? ' cbi-button-action lq-active' : ''),
+					click: function(ev) {
+						ev.preventDefault();
+						self.heatTarget = l;
+						self.updateCharts();
+					}
+				}, l == 'gateway' ? _('Gateway') : l);
+			}))) : '';
+
+			var ramp = E('span', { 'class': 'lq-legend' }, [
+				E('span', {}, [ _('Share of replies'), E('span', { 'class': 'lq-ramp' }), _('low to high') ]),
+				E('span', {}, [ E('span', { 'class': 'lq-sw', style: 'background:var(--lq-c2)' }), _('Median') ]),
+				E('span', {}, [ E('span', { 'class': 'lq-sw', style: 'background:var(--lq-c2);opacity:.5' }), _('95th percentile') ])
+			]);
+
+			charts.push(drawChart({
+				title: _('Latency distribution') + ' (ms)', rows: rows, step: step, range: range, now: now, yMax: 1,
+				heat: {
+					cells: cells, nb: nb, ticks: ticks,
+					map: function(ms) {
+						for (i = 0; i < nb; i++)
+							if (ms <= HEDGES[i]) {
+								var lo = i == 0 ? 0 : HEDGES[i - 1];
+
+								return (i + (ms - lo) / (HEDGES[i] - lo)) / nb;
+							}
+
+						return 1;
+					}
+				},
+				lines: [
+					{ color: 'var(--lq-c2)', width: 2, vals: med },
+					{ color: 'var(--lq-c2)', width: 1.5, opacity: .6, dash: '4 3', nodot: true, vals: p95 }
+				],
+				extra: chips, legend: [], foot: ramp,
+				tip: function(i) {
+					var items = [
+						{ color: 'var(--lq-c2)', label: _('Median'), value: fmtMs(med[i]) },
+						{ color: 'var(--lq-c2)', label: _('95th percentile'), value: fmtMs(p95[i]) },
+						{ color: 'var(--lq-c1)', label: _('Replies'), value: String(tots[i]) }
+					], h = hs[i], top = -1;
+
+					if (h)
+						h.forEach(function(c, b) { if (top < 0 || c > h[top]) top = b; });
+
+					if (top >= 0 && tots[i] > 0)
+						items.push({ color: 'var(--lq-c1)', label: _('Most common'),
+							value: (top == 0 ? '0' : HEDGES[top - 1]) + '–' + (top == nb - 1 ? '∞' : HEDGES[top]) + ' ms (' + (100 * h[top] / tots[i]).toFixed(0) + ' %)' });
+
+					return { title: fmtDateTime(rows[i].t), items: items };
+				}
+			}));
+		}
+
+		/* errors and drops */
+		if (rows.some(function(r) { return isnum(r.err) || isnum(r.drop) || isnum(r.crc); })) {
+			var cE = 'var(--lq-c2)', cD = 'var(--lq-c1)', cC = 'var(--lq-c4)', cols = [], mx = 4, tot = 0;
+
+			rows.forEach(function(r, ri) {
+				var sum = (r.err || 0) + (r.drop || 0) + (r.crc || 0);
+
+				tot += sum;
+				mx = Math.max(mx, sum);
+
+				if (sum > 0)
+					cols.push({ i: ri, segs: [ { v: r.err, color: cE }, { v: r.drop, color: cD }, { v: r.crc, color: cC } ] });
+			});
+
+			charts.push(drawChart({
+				title: _('Errors and drops'), rows: rows, step: step, range: range, now: now, yMax: mx * 1.05,
+				cols: cols, lines: [],
+				legend: [ { color: cE, label: _('Errors') }, { color: cD, label: _('Drops') }, { color: cC, label: _('CRC errors') } ],
+				foot: tot == 0 ? E('div', { 'class': 'lq-hint' }, _('No errors or drops in this range.')) : '',
+				tip: function(i) {
+					var r = rows[i];
+
+					return { title: fmtDateTime(r.t), items: [
+						{ color: cE, label: _('Errors'), value: dash(r.err, String) },
+						{ color: cD, label: _('Drops'), value: dash(r.drop, String) },
+						{ color: cC, label: _('CRC errors'), value: dash(r.crc, String) }
+					] };
+				}
+			}));
+		}
+
+		/* router CPU */
+		if (rows.some(function(r) { return rowCpu(r) != null; })) {
+			var cAvg = 'var(--lq-c1)', cCore = 'var(--lq-c2)',
+			    avg = rows.map(rowCpu),
+			    core = rows.map(function(r) { return (r.cpu && r.cpu[1] > 0 && isnum(r.cpu[3])) ? r.cpu[3] : null; });
+
+			charts.push(drawChart({
+				title: _('Router CPU') + ' (%)', rows: rows, step: step, range: range, now: now,
+				yScale: { step: 25, max: 100, digits: 0 },
+				lines: [
+					{ color: cAvg, width: 2, vals: avg },
+					{ color: cCore, width: 2, vals: core }
+				],
+				legend: [ { color: cAvg, label: _('Average') }, { color: cCore, label: _('Busiest core (peak)') } ],
+				tip: function(i) {
+					return { title: fmtDateTime(rows[i].t), items: [
+						{ color: cAvg, label: _('Average'), value: fmtPct(avg[i], 0) },
+						{ color: cCore, label: _('Busiest core (peak)'), value: fmtPct(core[i], 0) }
+					] };
+				}
+			}));
+		}
+
+		/* DNS */
+		var dr = rows.map(rowDns);
+
+		if (dr.some(function(d) { return d; })) {
+			var cDns = 'var(--lq-c3)', dv = dr.map(function(d) { return d ? d.avg : null; }), dm = 0, dbars = [];
+
+			dv.forEach(function(v) { if (isnum(v) && v > dm) dm = v; });
+			dr.forEach(function(d, ri) { if (d && d.fail > 0) dbars.push({ i: ri, frac: d.fail / 100 }); });
+
+			charts.push(drawChart({
+				title: _('DNS response time') + ' (ms)', rows: rows, step: step, range: range, now: now, yMax: Math.max(dm * 1.1, 1),
+				lines: [ { color: cDns, width: 2, vals: dv } ], bars: dbars,
+				legend: [ { color: cDns, label: _('Average response time') }, { color: 'var(--lq-bad)', label: _('Failed lookups') } ],
+				tip: function(i) {
+					var d = dr[i];
+
+					if (!d)
+						return { title: fmtDateTime(rows[i].t), items: [ { color: cDns, label: _('Lookups'), value: '0' } ] };
+
+					return { title: fmtDateTime(rows[i].t), items: [
+						{ color: cDns, label: _('Average response time'), value: fmtMs(d.avg) },
+						{ color: cDns, label: _('Slowest'), value: fmtMs(d.max) },
+						{ color: 'var(--lq-bad)', label: _('Failed lookups'), value: d.sent - d.ok + ' / ' + d.sent + ' (' + d.fail.toFixed(1) + ' %)' }
+					] };
+				}
+			}));
+		}
 	},
 
 	/* ----- tables ----- */
@@ -879,10 +1251,34 @@ return view.extend({
 		case 'internet_down': return _('Internet outage');
 		case 'wan_down': return _('WAN disconnected');
 		case 'link_down': return _('Link down');
+		case 'loss': return _('Packet loss');
 		case 'monitor_gap': return _('Monitoring gap');
 		}
 
 		return type;
+	},
+
+	/* the cause is recorded on the wan_down event; an internet outage borrows it from an overlapping one */
+	eventCause: function(e, all) {
+		if (e.type == 'wan_down')
+			return (e.detail || {}).cause || null;
+
+		if (e.type != 'internet_down')
+			return null;
+
+		var end = e.end != null ? e.end : Infinity, found = null;
+
+		all.forEach(function(w) {
+			if (found || w.type != 'wan_down' || !(w.detail || {}).cause)
+				return;
+
+			var wend = w.end != null ? w.end : Infinity;
+
+			if (w.start <= end + 60 && wend >= e.start - 60)
+				found = w.detail.cause;
+		});
+
+		return found;
 	},
 
 	eventDetail: function(e) {
@@ -900,6 +1296,14 @@ return view.extend({
 				out.push(_('WAN down'));
 		}
 
+		if (e.type == 'loss') {
+			if (isnum(d.max_loss_pct))
+				out.push(_('peak loss %s').format(fmtPct(d.max_loss_pct, 1)));
+
+			if (d.speedtest)
+				out.push(_('speed test ran meanwhile'));
+		}
+
 		if (d.old_ip || d.new_ip)
 			out.push(_('IP changed') + ': ' + (d.old_ip || '?') + ' → ' + (d.new_ip || '?'));
 
@@ -909,8 +1313,29 @@ return view.extend({
 		return out.join(', ');
 	},
 
+	eventExtras: function(e) {
+		var d = e.detail || {}, out = [];
+
+		if (Array.isArray(d.trace) && d.trace.length)
+			out.push(E('details', {}, [
+				E('summary', {}, _('Traceroute (%d hops)').format(d.trace.length)),
+				E('pre', {}, d.trace.map(function(h) {
+					return String(h.hop).padStart(2, ' ') + '  ' + (h.ip || '*') + (isnum(h.rtt) ? '  ' + fmtMs(h.rtt) : '');
+				}).join('\n'))
+			]));
+
+		if (Array.isArray(d.log) && d.log.length)
+			out.push(E('details', {}, [
+				E('summary', {}, _('PPP log')),
+				E('pre', {}, d.log.join('\n'))
+			]));
+
+		return out;
+	},
+
 	updateEvents: function() {
-		var self = this, list = (this.ev || {}).events || [];
+		var self = this, all = (this.ev || {}).events || [],
+		    list = all.filter(function(e) { return e.type != 'ip_change'; });
 
 		if (!list.length) {
 			dom.content(this.eventsEl, E('div', { 'class': 'lq-empty' }, _('No outages recorded.')));
@@ -920,18 +1345,45 @@ return view.extend({
 		dom.content(this.eventsEl, E('table', { 'class': 'table' }, [
 			E('tr', { 'class': 'tr table-titles' }, [
 				E('th', { 'class': 'th' }, _('Type')), E('th', { 'class': 'th' }, _('Start')), E('th', { 'class': 'th' }, _('End')),
-				E('th', { 'class': 'th' }, _('Duration')), E('th', { 'class': 'th' }, _('Details'))
+				E('th', { 'class': 'th' }, _('Duration')), E('th', { 'class': 'th' }, _('Cause')), E('th', { 'class': 'th' }, _('Details'))
 			])
 		].concat(list.map(function(e) {
 			var open = e.end == null,
-			    dur = open ? (self.stat && isnum(self.stat.now) ? self.stat.now - e.start : null) : e.duration;
+			    dur = open ? (self.stat && isnum(self.stat.now) ? self.stat.now - e.start : null) : e.duration,
+			    cause = self.eventCause(e, all);
 
 			return E('tr', { 'class': 'tr' + (open ? ' lq-ongoing' : '') }, [
 				E('td', { 'class': 'td' }, self.eventLabel(e.type)),
 				E('td', { 'class': 'td' }, fmtDateTime(e.start)),
 				E('td', { 'class': 'td' }, open ? _('ongoing') : fmtDateTime(e.end)),
 				E('td', { 'class': 'td' }, fmtDur(dur)),
-				E('td', { 'class': 'td' }, self.eventDetail(e))
+				E('td', { 'class': 'td' }, cause ? causeLabel(cause) : '–'),
+				E('td', { 'class': 'td' }, [ self.eventDetail(e) ].concat(self.eventExtras(e)))
+			]);
+		}))));
+	},
+
+	updateIps: function() {
+		var list = ((this.ev || {}).events || []).filter(function(e) { return e.type == 'ip_change'; });
+
+		if (!list.length) {
+			dom.content(this.ipsEl, E('div', { 'class': 'lq-empty' }, _('No address changes recorded.')));
+			return;
+		}
+
+		dom.content(this.ipsEl, E('table', { 'class': 'table' }, [
+			E('tr', { 'class': 'tr table-titles' }, [
+				E('th', { 'class': 'th' }, _('Date')), E('th', { 'class': 'th' }, _('Address')),
+				E('th', { 'class': 'th' }, _('Previous')), E('th', { 'class': 'th' }, _('New'))
+			])
+		].concat(list.map(function(e) {
+			var d = e.detail || {};
+
+			return E('tr', { 'class': 'tr' }, [
+				E('td', { 'class': 'td' }, fmtDateTime(e.start)),
+				E('td', { 'class': 'td' }, d.family == 'ipv6-prefix' ? _('IPv6 prefix') : _('IPv4 address')),
+				E('td', { 'class': 'td' }, d.old || '–'),
+				E('td', { 'class': 'td' }, d.new || '–')
 			]);
 		}))));
 	},
@@ -948,17 +1400,20 @@ return view.extend({
 			E('tr', { 'class': 'tr table-titles' }, [
 				E('th', { 'class': 'th' }, _('Date')), E('th', { 'class': 'th' }, _('Trigger')),
 				E('th', { 'class': 'th lq-num' }, _('Download')), E('th', { 'class': 'th lq-num' }, _('Upload')),
+				E('th', { 'class': 'th lq-num' }, _('% of plan')),
 				E('th', { 'class': 'th lq-num' }, _('Ping')), E('th', { 'class': 'th lq-num' }, _('Jitter')),
-				E('th', { 'class': 'th lq-num' }, _('Bufferbloat')), E('th', { 'class': 'th' }, _('Server'))
+				E('th', { 'class': 'th lq-num' }, _('Bufferbloat')),
+				E('th', { 'class': 'th lq-num' }, _('CPU avg / peak core')), E('th', { 'class': 'th' }, _('Server'))
 			])
 		].concat(list.map(function(r) {
-			var delta = (isnum(r.loaded_rtt) && isnum(r.idle_rtt)) ? r.loaded_rtt - r.idle_rtt : null;
+			var delta = (isnum(r.loaded_rtt) && isnum(r.idle_rtt)) ? r.loaded_rtt - r.idle_rtt : null,
+			    low = (isnum(r.down_pct) && r.down_pct < 80) || (isnum(r.up_pct) && r.up_pct < 80);
 
 			if (!r.ok)
 				return E('tr', { 'class': 'tr' }, [
 					E('td', { 'class': 'td' }, fmtDateTime(r.t)),
 					E('td', { 'class': 'td' }, r.trigger == 'schedule' ? _('Scheduled') : _('Manual')),
-					E('td', { 'class': 'td lq-bad', colspan: 6 }, _('Failed') + (r.error ? ': ' + r.error : ''))
+					E('td', { 'class': 'td lq-bad', colspan: 8 }, _('Failed') + (r.error ? ': ' + r.error : ''))
 				]);
 
 			return E('tr', { 'class': 'tr' }, [
@@ -966,9 +1421,12 @@ return view.extend({
 				E('td', { 'class': 'td' }, r.trigger == 'schedule' ? _('Scheduled') : _('Manual')),
 				E('td', { 'class': 'td lq-num' }, fmtMbit(r.down)),
 				E('td', { 'class': 'td lq-num' }, fmtMbit(r.up)),
+				E('td', { 'class': 'td lq-num' + (low ? ' lq-warn' : '') },
+					(isnum(r.down_pct) || isnum(r.up_pct)) ? arrows(fmtPct(r.down_pct, 0), fmtPct(r.up_pct, 0)) : '–'),
 				E('td', { 'class': 'td lq-num' }, fmtMs(r.ping)),
 				E('td', { 'class': 'td lq-num' }, fmtMs(r.jitter)),
 				E('td', { 'class': 'td lq-num' }, delta == null ? '–' : '+' + fmtMs(Math.max(0, delta))),
+				E('td', { 'class': 'td lq-num' }, isnum(r.cpu_avg) ? fmtPct(r.cpu_avg, 0) + ' / ' + fmtPct(r.core_max, 0) : '–'),
 				E('td', { 'class': 'td' }, r.server || '–')
 			]);
 		}))));
@@ -990,11 +1448,15 @@ return view.extend({
 				E('th', { 'class': 'th lq-num' }, _('Downloaded')), E('th', { 'class': 'th lq-num' }, _('Uploaded')),
 				E('th', { 'class': 'th lq-num' }, _('Average speed')), E('th', { 'class': 'th lq-num' }, _('Peak speed')),
 				E('th', { 'class': 'th lq-num' }, _('Uptime')), E('th', { 'class': 'th lq-num' }, _('Loss')),
-				E('th', { 'class': 'th lq-num' }, _('Average RTT'))
+				E('th', { 'class': 'th lq-num' }, _('Average RTT')), E('th', { 'class': 'th lq-num' }, _('RTT p95')),
+				E('th', { 'class': 'th lq-num' }, _('DNS avg / failed')),
+				E('th', { 'class': 'th lq-num' }, _('Errors / drops / CRC'))
 			])
 		].concat(rows.map(function(r) {
 			var up = r.mon_s > 0 ? 100 * (1 - (r.down_s || 0) / r.mon_s) : null,
-			    sent = 0, recv = 0, sum = 0;
+			    sent = 0, recv = 0, sum = 0,
+			    p95 = histPercentile(rowsHist([ r ], ref), .95),
+			    dns = rowDns(r);
 
 			ref.forEach(function(l) {
 				var p = (r.p || {})[l];
@@ -1014,7 +1476,11 @@ return view.extend({
 				E('td', { 'class': 'td lq-num' }, arrows(fmtRate(r.rx_peak), fmtRate(r.tx_peak))),
 				E('td', { 'class': 'td lq-num ' + (isnum(up) && up < 99.9 ? 'lq-warn' : '') }, fmtPct(up)),
 				E('td', { 'class': 'td lq-num' }, sent > 0 ? fmtPct(100 * (1 - recv / sent)) : '–'),
-				E('td', { 'class': 'td lq-num' }, recv > 0 ? fmtMs(sum / recv) : '–')
+				E('td', { 'class': 'td lq-num' }, recv > 0 ? fmtMs(sum / recv) : '–'),
+				E('td', { 'class': 'td lq-num' }, fmtMs(p95)),
+				E('td', { 'class': 'td lq-num' }, dns ? fmtMs(dns.avg) + ' / ' + fmtPct(dns.fail, 1) : '–'),
+				E('td', { 'class': 'td lq-num' }, (isnum(r.err) || isnum(r.drop) || isnum(r.crc)) ?
+					(r.err || 0) + ' / ' + (r.drop || 0) + ' / ' + (r.crc || 0) : '–')
 			]);
 		}))));
 	},
