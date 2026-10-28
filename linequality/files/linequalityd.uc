@@ -8,9 +8,12 @@ import * as uloop from 'uloop';
 import * as ubus from 'ubus';
 import * as uci from 'uci';
 
-const VERSION = '0.2.0';
+const VERSION = '0.2.1';
 const MIN_VALID_TIME = 1700000000;   // below this the clock is not synced yet
 const GAP_SECONDS = 120;             // grace before finalizing a period / reporting a monitor gap
+const BOOT_GRACE = 300;              // s of system uptime in which a WAN still down is the boot, not an outage
+const MIN_TICK = 0.5;                // s; a tick closer than this to the previous one is skipped
+const OUTAGE_SLACK = 5;              // s; outage events this close together are one disconnection
 const KEEP_SECONDS = 48 * 3600;      // minute buckets kept in RAM, max age of state.json
 const PROBES = 10;                   // fping probes per batch (one per second)
 const MAX_EVENTS = 5000;
@@ -60,6 +63,7 @@ let spd = { running: false, started_at: null, trigger: null, proc: null, out: nu
 let state_loaded = false;
 let gap_checked = false;
 let saved_at = 0;
+let booting = false;                 // router just booted and the WAN has not been up yet (BOOT_GRACE)
 
 // ---------------------------------------------------------------- helpers
 
@@ -90,6 +94,22 @@ function guard(fn, name) {
 
 function synced(t) {
 	return (t ?? time()) >= MIN_VALID_TIME;
+}
+
+// Clock valid and boot over: only then are events and statistics recorded.
+function live(t) {
+	return synced(t) && !booting;
+}
+
+// System uptime in s; null when unreadable.
+function sys_uptime() {
+	let m = match(fs.readfile('/proc/uptime') ?? '', /^([0-9.]+)/);
+	return m ? +m[1] : null;
+}
+
+// The boot ends when the WAN is first up, or BOOT_GRACE s after the system started.
+function boot_over(wan_up, uptime) {
+	return wan_up || uptime == null || uptime >= BOOT_GRACE;
 }
 
 function num(v, def) {
@@ -806,18 +826,34 @@ function add_seconds(field, t, n) {
 		bucket_at(t + i)[field]++;
 }
 
-// Disconnections (internet_down + wan_down) starting in [from, to): count, those >= 60 s, longest.
+// Disconnections starting in [from, to): count, those >= 60 s, longest. internet_down and
+// wan_down events that overlap (or are within OUTAGE_SLACK s) are one disconnection.
 function outage_stats(evs, from, to, now) {
+	let iv = [];
+	for (let ev in evs)
+		if (ev.start >= from && ev.start < to && (ev.type == 'internet_down' || ev.type == 'wan_down'))
+			push(iv, [ev.start, ev.start + (ev.duration ?? max(0, now - ev.start))]);
+	sort(iv, (a, b) => a[0] - b[0]);
 	let o = { outages: 0, outages_1m: 0, longest_s: 0 };
-	for (let ev in evs) {
-		if (ev.start < from || ev.start >= to || (ev.type != 'internet_down' && ev.type != 'wan_down'))
-			continue;
-		let dur = ev.duration ?? max(0, now - ev.start);
+	let add = (x) => {
+		let dur = x[1] - x[0];
 		o.outages++;
 		if (dur >= 60)
 			o.outages_1m++;
 		o.longest_s = max(o.longest_s, dur);
+	};
+	let cur = null;
+	for (let x in iv) {
+		if (cur && x[0] <= cur[1] + OUTAGE_SLACK)
+			cur[1] = max(cur[1], x[1]);
+		else {
+			if (cur)
+				add(cur);
+			cur = [x[0], x[1]];
+		}
 	}
+	if (cur)
+		add(cur);
 	return o;
 }
 
@@ -879,7 +915,11 @@ function apply_iface(r, carrier, now) {
 	let up = r?.up == true;
 	let uptime = up ? (r.uptime ?? 0) : 0;
 	let ip = r?.['ipv4-address']?.[0]?.address;
-	if (synced(now))
+	if (booting && boot_over(up, sys_uptime())) {
+		booting = false;
+		log('boot over, monitoring');
+	}
+	if (live(now))
 		track_link_events(up, uptime, ip, carrier, now);
 	if (ip)
 		last_ip = ip;
@@ -904,7 +944,7 @@ function poll6() {
 	prefix6 = p?.address ? sprintf('%s/%d', p.address, p.mask) : null;
 	if (!prefix6)
 		return;
-	if (last_prefix && prefix6 != last_prefix && synced())
+	if (last_prefix && prefix6 != last_prefix && live())
 		ip_change('ipv6-prefix', last_prefix, prefix6, time());
 	last_prefix = prefix6;
 }
@@ -958,6 +998,10 @@ function cpu_account(b, cpu) {
 function tick() {
 	let m = clock(true);
 	let mono = m[0] + m[1] / 1e9;
+	// uloop intervals keep their phase: a late tick is followed by one a few ms later,
+	// whose CPU and rate deltas would be noise. Skip it; the next tick covers the time.
+	if (traffic.mono != null && mono - traffic.mono < MIN_TICK)
+		return;
 	let dt = traffic.mono != null ? mono - traffic.mono : null;
 	traffic.mono = mono;
 	let cur = iface.l3_device ? read_counters(iface.l3_device) : null;
@@ -969,7 +1013,7 @@ function tick() {
 	let snap = cpu_parse(fs.readfile('/proc/stat'));
 	let cpu = cpu_busy(traffic.cpu_prev, snap);
 	traffic.cpu_prev = snap;
-	if (dt == null || !synced())
+	if (dt == null || !live())
 		return;
 
 	let secs = min(max(int(dt + 0.5), 1), 5);
@@ -1003,7 +1047,7 @@ function dns_done(t, code) {
 	dns.proc = null;
 	dns.last_ms = ok ? ms : null;
 	dns.ok_last = ok;
-	if (!synced(t))
+	if (!live(t))
 		return;
 	let d = bucket_at(t).dns;
 	d[0]++;
@@ -1016,7 +1060,7 @@ function dns_done(t, code) {
 
 // One lookup, round-robin over the configured names, never overlapping.
 function dns_probe() {
-	if (!cfg.dns_server || !length(cfg.dns_names) || dns.proc || !synced())
+	if (!cfg.dns_server || !length(cfg.dns_names) || dns.proc || !live())
 		return;
 	let name = cfg.dns_names[dns.idx++ % length(cfg.dns_names)];
 	let t = time();
@@ -1170,7 +1214,7 @@ function loss_check(t) {
 }
 
 function process_batch(start, list, txt) {
-	if (!synced(start))
+	if (!live(start))
 		return;
 	let res = parse_fping(txt);
 	let refs = ref_labels();
@@ -1236,7 +1280,7 @@ function probe_done(start, list, file) {
 probe_next = function() {
 	if (shutting_down)
 		return;
-	let list = synced() ? resolve_targets() : [];
+	let list = live() ? resolve_targets() : [];
 	if (!length(list))
 		return probe_retry(1000);
 
@@ -1375,7 +1419,7 @@ function speedtest_start(trigger) {
 }
 
 function schedule_check() {
-	if (!length(cfg.schedule) || !synced())
+	if (!length(cfg.schedule) || !live())
 		return;
 	let now = time();
 	let l = localtime(now);
@@ -1471,15 +1515,35 @@ function month_report(rows, evs, tsts, from, to, now) {
 	return m;
 }
 
+// Rows covering [from, now), as coarse as possible: minute buckets up to the first whole hour,
+// hour rows up to the first whole local day, then day rows. Same totals as merging every
+// minute, with a few dozen merges instead of thousands.
+function rows_since(from, mins, hrs, drs) {
+	let h0 = from % 3600 ? from - from % 3600 + 3600 : from;
+	let d0 = day_start(h0);
+	if (d0 < h0)
+		d0 = next_day(d0);
+	let out = filter(drs, r => r.t >= d0);
+	for (let r in hrs)
+		if (r.t >= h0 && r.t < d0)
+			push(out, r);
+	for (let m in mins)
+		if (m.t >= from && m.t < h0)
+			push(out, m);
+	return out;
+}
+
 function build_summary(now) {
 	let mins = values(minutes);
 	let hrs = all_hours();
+	let drs = [...days.rows, ...day_rows(hrs, last_day_done, FOREVER)];
+	let sum = from => summarize(rows_since(from, mins, hrs, drs), from);
 	return {
-		today: summarize(mins, day_start(now)),
-		month: summarize(hrs, month_start(now, 0)),
-		'24h': summarize(mins, now - 86400),
-		'7d': summarize(hrs, now - 7 * 86400),
-		'30d': summarize(hrs, now - 30 * 86400)
+		today: sum(day_start(now)),
+		month: sum(month_start(now, 0)),
+		'24h': sum(now - 86400),
+		'7d': sum(now - 7 * 86400),
+		'30d': sum(now - 30 * 86400)
 	};
 }
 
@@ -1760,7 +1824,7 @@ function shutdown() {
 }
 
 function every_second() {
-	if (!gap_checked && synced())
+	if (!gap_checked && live())
 		check_gap(time());
 	tick();
 }
@@ -1777,6 +1841,7 @@ function main() {
 	last_day_done = length(days.rows) ? days.rows[length(days.rows) - 1].t : 0;
 	load_state(now);
 	started = now;
+	booting = !boot_over(false, sys_uptime());
 
 	uloop.init();
 	conn = ubus.connect();
@@ -1980,7 +2045,8 @@ function selftest_v02(check, mk, T) {
 	let m = month_report(drows, evs, tst, from, to, from + 5100);
 	check('report month key', m.month == substr(date_str(from), 0, 7));
 	check('report availability', m.mon_s == 172800 && m.down_s == 1200 && near(m.uptime_pct, 99.31));
-	check('report outages', m.outages == 3 && m.outages_1m == 2 && m.longest_s == 120);
+	// the internet_down at +100 (120 s) and the wan_down at +200 (30 s) overlap: one outage of 130 s
+	check('report outages', m.outages == 2 && m.outages_1m == 2 && m.longest_s == 130);
 	check('report traffic/errors', m.rx == 2000 && m.rx_peak_bps == 7 && m.crc == 4 && m.err == 2 && near(m.cpu_avg, 50));
 	check('report quality', near(m.loss_pct, 10) && near(m.rtt_avg, 10) && near(m.rtt_p95, 2.95) && near(m.dns_avg_ms, 10) && near(m.dns_fail_pct, 10));
 	check('report speedtests', m.speedtests.n == 3 && m.speedtests.ok == 2 && m.speedtests.down_avg == 80 && m.speedtests.down_min == 70
@@ -2093,6 +2159,38 @@ function selftest() {
 	check('counter reset gives zero', counter_deltas({ dev: 'a', rx_bytes: 10 }, { dev: 'a', rx_bytes: 5 }).rx_bytes == 0);
 	check('counter delta', counter_deltas({ dev: 'a', rx_bytes: 10, tx_bytes: 0, rx_errors: 0, tx_errors: 0, rx_dropped: 0, tx_dropped: 0 },
 	                                       { dev: 'a', rx_bytes: 30, tx_bytes: 0, rx_errors: 0, tx_errors: 0, rx_dropped: 0, tx_dropped: 0 }).rx_bytes == 20);
+
+	// 0.2.1: overlapping outage events, boot grace, short ticks
+	let ev = (type, start, duration) => ({ type, start, duration });
+	let os = outage_stats([ev('wan_down', 100, 40), ev('internet_down', 100, 40), ev('link_down', 100, 30),
+	                       ev('internet_down', 300, 70), ev('wan_down', 303, 60), ev('internet_down', 1000, 5)], 0, FOREVER, 2000);
+	check('overlapping outages are one', os.outages == 3 && os.outages_1m == 1 && os.longest_s == 70);
+	check('outages within slack merged', outage_stats([ev('wan_down', 0, 10), ev('internet_down', 14, 10)], 0, FOREVER, 100).outages == 1);
+	check('open outage counted to now', outage_stats([ev('internet_down', 100, null)], 0, FOREVER, 130).longest_s == 30);
+	check('boot over', !boot_over(false, 40) && boot_over(true, 40) && boot_over(false, BOOT_GRACE) && boot_over(false, null));
+	booting = true;
+	check('not live while booting', !live(T) && synced(T));
+	booting = false;
+	let mm = clock(true);
+	traffic.mono = mm[0] + mm[1] / 1e9;
+	let mono0 = traffic.mono;
+	traffic.cpu_prev = 'kept';
+	tick();
+	check('short tick skipped', traffic.mono == mono0 && traffic.cpu_prev == 'kept');
+	traffic.cpu_prev = null;
+
+	// summaries from day/hour/minute rows give the same totals as the minutes alone
+	let t0 = day_start(T) - 3 * 3600 + 17 * 60;
+	let mins2 = {};
+	for (let t = t0; t < t0 + 30 * 3600; t += 60)
+		mins2[t] = mk(t, 1 + t % 5, t % 7, { x: [1, 1, 2.0, 2.0, 2.0, 0, 0] });
+	let ml = values(mins2);
+	let hrs2 = hour_rows(mins2, 0, FOREVER);
+	let drs2 = day_rows(hrs2, 0, FOREVER);
+	for (let from in [t0, t0 + 5 * 3600 + 120, day_start(T), t0 + 26 * 3600 + 30]) {
+		let a = stats_of(ml, from), b = stats_of(rows_since(from, ml, hrs2, drs2), from);
+		check('coarse rows from ' + (from - t0), a.rx == b.rx && a.mon_s == b.mon_s && a.rx_peak_bps == b.rx_peak_bps);
+	}
 
 	selftest_v02(check, mk, T);
 
