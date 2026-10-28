@@ -51,6 +51,10 @@ msgid "No answer from the provider (PADO)"
 msgstr "Nessuna risposta dal provider (PADO)"
 
 #: view/linequality/overview.js:383
+msgid "Physical link lost"
+msgstr "Collegamento fisico perso"
+
+#: view/linequality/overview.js:384
 msgid "Other"
 msgstr "Altro"
 

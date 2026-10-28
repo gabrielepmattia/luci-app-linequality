@@ -8,7 +8,7 @@ import * as uloop from 'uloop';
 import * as ubus from 'ubus';
 import * as uci from 'uci';
 
-const VERSION = '0.2.1';
+const VERSION = '0.2.2';
 const MIN_VALID_TIME = 1700000000;   // below this the clock is not synced yet
 const GAP_SECONDS = 120;             // grace before finalizing a period / reporting a monitor gap
 const BOOT_GRACE = 300;              // s of system uptime in which a WAN still down is the boot, not an outage
@@ -487,7 +487,7 @@ const I18N = {
 		causes: { peer_hangup: 'line hang-up (PPPoE)', peer_terminated: 'session terminated by the provider',
 		          echo_timeout: 'provider not answering (echo timeout)', local_restart: 'local restart of the connection',
 		          auth_failed: 'authentication failed', no_pado: 'no answer from the provider (PADO)',
-		          other: 'other', none: 'unknown' },
+		          link_lost: 'physical link lost (fiber or cable)', other: 'other', none: 'unknown' },
 		restored: 'Connection restored',
 		restored_msg: 'Connection restored after %s (%s–%s). Cause: %s. Gateway reachable during the outage: %s.',
 		monitor_gap: 'Monitoring gap',
@@ -507,7 +507,7 @@ const I18N = {
 		causes: { peer_hangup: 'caduta della linea (PPPoE)', peer_terminated: 'sessione terminata dal provider',
 		          echo_timeout: 'il provider non risponde (echo timeout)', local_restart: 'riavvio locale della connessione',
 		          auth_failed: 'autenticazione fallita', no_pado: 'nessuna risposta dal provider (PADO)',
-		          other: 'altra', none: 'sconosciuta' },
+		          link_lost: 'collegamento fisico perso (fibra o cavo)', other: 'altra', none: 'sconosciuta' },
 		restored: 'Connessione ripristinata',
 		restored_msg: 'Connessione ripristinata dopo %s (%s–%s). Causa: %s. Gateway raggiungibile durante il disservizio: %s.',
 		monitor_gap: 'Monitoraggio interrotto',
@@ -564,7 +564,7 @@ function build_note(lang, kind, x) {
 		break;
 	}
 	return {
-		kind, title: d[kind], message: sprintf(d[kind + '_msg'], ...a) + (kind == 'restored' && x.link ? d.link : ''),
+		kind, title: d[kind], message: sprintf(d[kind + '_msg'], ...a) + (kind == 'restored' && x.link && x.cause != 'link_lost' ? d.link : ''),
 		tags: NOTE_TAGS[kind], priority: (kind == 'restored' && ev.duration > 600) ? 'high' : 'default',
 		data: ev ?? row ?? {}
 	};
@@ -821,6 +821,14 @@ function cause_detail(proto) {
 	return d;
 }
 
+// detail fields for a wan_down over [start, end]: a physical link drop in that window is the cause.
+function wan_detail(start, end) {
+	let d = cause_detail(iface.proto);
+	if (overlapping('link_down', { start, end }))
+		d.cause = 'link_lost';
+	return d;
+}
+
 function add_seconds(field, t, n) {
 	for (let i = 0; i < n; i++)
 		bucket_at(t + i)[field]++;
@@ -884,13 +892,13 @@ function track_link_events(up, uptime, ip, carrier, now) {
 	if (up && iface.up && iface.uptime != null && uptime < iface.uptime) {
 		// session restarted between two polls: record the outage we missed
 		let end = max(now - uptime, iface.at);
-		add_closed('wan_down', iface.at, end, { ...(ipchg ?? {}), ...cause_detail(iface.proto) });
+		add_closed('wan_down', iface.at, end, { ...(ipchg ?? {}), ...wan_detail(iface.at, end) });
 		add_seconds('wan_down_s', iface.at, end - iface.at);
 	}
 	else if (!up && !open.wan_down)
 		open_event('wan_down', now);
 	else if (up && open.wan_down)
-		close_event('wan_down', now, { ...(ipchg ?? {}), ...cause_detail(iface.proto) });
+		close_event('wan_down', now, { ...(ipchg ?? {}), ...wan_detail(open.wan_down.start, now) });
 
 	if (ipchg)
 		ip_change('ipv4', last_ip, ip, now);
@@ -1988,6 +1996,8 @@ function selftest_v02(check, mk, T) {
 	let it = build_note('it', 'restored', { ev: { ...ev, duration: 300, end: T + 300, detail: { gateway_ok: true } }, cause: null, link: true });
 	check('note it', index(it.message, 'Connessione ripristinata dopo 5 min 0 s') == 0 && index(it.message, 'Causa: sconosciuta') > 0
 	      && index(it.message, 'sì') > 0 && index(it.message, 'collegamento fisico') > 0 && it.priority == 'default');
+	let ln = build_note('en', 'restored', { ev, cause: 'link_lost', link: true });
+	check('note link lost', index(ln.message, 'Cause: physical link lost') > 0 && index(ln.message, 'as well') < 0);
 	check('note fallback language', build_note('xx', 'test', {}).title == 'Test notification');
 	check('note gap/loss', index(build_note('en', 'monitor_gap', { ev: { start: T, end: T + 3600, duration: 3600 } }).message, '(1 h 0 min)') > 0
 	      && index(build_note('it', 'loss', { ev: { start: T, end: T + 90, duration: 90, detail: { max_loss_pct: 12.5 } } }).message, 'fino al 12.5%') > 0);
@@ -2136,6 +2146,7 @@ function selftest() {
 	check('link_down opens', open.link_down != null);
 	apply_iface(up(13, '5.6.7.8'), true, T + 40);
 	check('link_down closes', !open.link_down && events.rows[3].type == 'link_down');
+	check('cause link lost', wan_detail(T + 20, T + 30).cause == 'link_lost' && wan_detail(T + 200, T + 210).cause != 'link_lost');
 
 	run = { n: 0, times: [], gw: null };
 	run_probe(T, true, true);

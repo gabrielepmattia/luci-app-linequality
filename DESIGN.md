@@ -340,8 +340,8 @@ h:    { "<label>": [c0..c17] }     // RTT histogram per target
   Emit it whenever the value changes between polls and both values are non-null, including
   inside a `wan_down`. The `old_ip`/`new_ip` detail on `wan_down` stays.
 - `wan_down.detail.cause`: one of `peer_hangup`, `peer_terminated`, `echo_timeout`,
-  `local_restart`, `auth_failed`, `no_pado`, `other`. It is `null` when the protocol is not
-  PPPoE or no pppd line was found.
+  `local_restart`, `auth_failed`, `no_pado`, `link_lost`, `other`. It is `null` when the
+  protocol is not PPPoE or no pppd line was found (`link_lost` excepted, see 0.2.2).
   - Compute it when the event closes, and for the fast-reconnect case when it is recorded.
     Read `logread -l 400` synchronously with `fs.popen` (rare, so blocking is fine) and keep
     the lines containing `pppd[`.
@@ -482,3 +482,12 @@ Fixes found on the first week of data from a Turris Omnia NG (TurrisOS 9.1.4).
   hour rows up to the first whole local day, then day rows (pending ones included), which
   gives the same totals with a few dozen merges. `series 24h` (0.5 s, polled every 60 s)
   still merges minutes.
+
+## Changes in 0.2.2
+
+- **Cause `link_lost`.** When a `link_down` overlaps the `wan_down` (same ±60 s window as
+  `overlapping()`), the cause is `link_lost` whatever pppd said, for any protocol: the
+  physical link (fiber/SFP, cable) went down first and pppd only saw the consequence. On the
+  Omnia NG a 51 s `eth4: PHY Link is down` was recorded as `other` because pppd logged no
+  matching line. The `restored` notification drops the "physical link was down as well"
+  sentence when the cause already says so. LuCI shows it as "Physical link lost".

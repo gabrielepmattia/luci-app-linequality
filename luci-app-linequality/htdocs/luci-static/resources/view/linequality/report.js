@@ -158,6 +158,7 @@ function causeLabel(c) {
 	case 'local_restart': return _('Restarted locally');
 	case 'auth_failed': return _('Authentication failed');
 	case 'no_pado': return _('No answer from the provider (PADO)');
+	case 'link_lost': return _('Physical link lost');
 	case 'other': return _('Other');
 	}
 
